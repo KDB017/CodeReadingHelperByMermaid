@@ -11,13 +11,35 @@
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
+  
   "contributes": {
     "commands": [
       {
-        "command": "code-reading-helper-in-mermaid-sequence-diagram.helloWorld",
-        "title": "Hello World"
+        "command": "mermaidWebview.showPreview",
+        "title": "ShowMermaidPreview"
+      }
+    ],
+    "languages": [
+    {
+      "id": "mermaid",
+      "aliases": ["Mermaid", "mermaid"],
+      "extensions": [".mmd", ".mermaid"],
+      "configuration": "./language-configuration.json"
+    }
+  ],
+    "menus": {
+    "editor/title": [
+      {
+        "command": "mermaidWebview.showPreview",
+        "when": "resourceLangId == mermaid",
+        "group": "navigation",
+        "icon": {
+          "light": "media/eye.svg",
+          "dark": "media/eye.svg"
+        }
       }
     ]
+  }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

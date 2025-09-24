@@ -1,0 +1,14 @@
+
+YarnOrNPM=npm
+all:
+	test
+test:
+	$(YarnOrNPM) run vscode:prepublish
+compile:
+	$(YarnOrNPM) run compile
+lint:
+	$(YarnOrNPM) run lint
+unittest:
+	$(YarnOrNPM) run unittest
+
+

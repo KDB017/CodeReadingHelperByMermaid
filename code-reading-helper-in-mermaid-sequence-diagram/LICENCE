@@ -31,3 +31,4 @@ Copyright (c) 2023 Mermaid Chart
 Licensed under MIT License
 
 Used in: src/debounce.ts
+            /App.svelte

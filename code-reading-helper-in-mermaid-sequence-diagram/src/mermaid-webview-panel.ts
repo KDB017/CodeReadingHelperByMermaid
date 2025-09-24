@@ -26,6 +26,7 @@ export class MermaidWebviewPanel {
   // private _isFileChange : boolean;
 
 
+
   /**
    * webview panel constructor
    * @param panel webview panel
@@ -87,13 +88,16 @@ export class MermaidWebviewPanel {
   
   }
 
+  /**
+   * Set up listeners for document changes and messages from the webview.
+   */
   private _setupListeners(): void {
     const debouncedUpdate = debounce(() => this._update(), 300);
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document === this._document) {
         debouncedUpdate();
       }
-    }, );
+    });
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor?.document?.languageId.startsWith('mermaid')) {
@@ -103,7 +107,7 @@ export class MermaidWebviewPanel {
           debouncedUpdate();
         }
       } 
-    },);
+    });
 
     this._panel.webview.onDidReceiveMessage(
       (message) => {

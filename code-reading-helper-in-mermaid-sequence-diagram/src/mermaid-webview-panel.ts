@@ -16,13 +16,13 @@ export class MermaidWebviewPanel {
   /**
    * The webview panel instance
    */
-  private readonly _panel: vscode.WebviewPanel;
+  private readonly panel: vscode.WebviewPanel;
   // private readonly _extensionUri: vscode.Uri;
 
   /**
    * The text document being displayed in the webview panel
    */
-  private _document: vscode.TextDocument;
+  private document: vscode.TextDocument;
   // private _isFileChange : boolean;
 
 
@@ -33,18 +33,18 @@ export class MermaidWebviewPanel {
    * @param document vscode text document
    */
   private constructor(panel: vscode.WebviewPanel, document:vscode.TextDocument) {
-    this._panel = panel;
+    this.panel = panel;
     // this._isFileChange = false;
     // this._extensionUri = extensionUri;
-    this._document=  document;
+    this.document=  document;
 
-    this._update();
-    this._setupListeners();
+    this.update();
+    this.setupListeners();
     
 
 
     // When the panel is closed, dispose of resources
-    this._panel.onDidDispose(() => this.dispose(), null);
+    this.panel.onDidDispose(() => this.dispose(), null);
   }
 
   /**
@@ -54,7 +54,7 @@ export class MermaidWebviewPanel {
   public static show( document:vscode.TextDocument): void{
     // if already opened → update
     if (MermaidWebviewPanel.currentPanel) {
-      MermaidWebviewPanel.currentPanel._panel.reveal();
+      MermaidWebviewPanel.currentPanel.panel.reveal();
       return;
     }
 
@@ -74,16 +74,16 @@ export class MermaidWebviewPanel {
    */
   public dispose(): void {
     MermaidWebviewPanel.currentPanel = undefined;
-    this._panel.dispose();
+    this.panel.dispose();
   }
 
   /**
    * Update the webview content.
    */
-  private _update(): void {
+  private update(): void {
 
-    if(!this._panel.webview.html){
-      this._panel.webview.html = getHtmlForWebview(this._panel, this._document.getText());
+    if(!this.panel.webview.html){
+      this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText());
     }
   
   }
@@ -91,25 +91,25 @@ export class MermaidWebviewPanel {
   /**
    * Set up listeners for document changes and messages from the webview.
    */
-  private _setupListeners(): void {
-    const debouncedUpdate = debounce(() => this._update(), 300);
+  private setupListeners(): void {
+    const debouncedUpdate = debounce(() => this.update(), 300);
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (event.document === this._document) {
+      if (event.document === this.document) {
         debouncedUpdate();
       }
     });
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor?.document?.languageId.startsWith('mermaid')) {
-        if (editor.document.uri.toString() !== this._document?.uri.toString()) {
-          this._document = editor.document;
+        if (editor.document.uri.toString() !== this.document?.uri.toString()) {
+          this.document = editor.document;
           // this._isFileChange = true;
           debouncedUpdate();
         }
       } 
     });
 
-    this._panel.webview.onDidReceiveMessage(
+    this.panel.webview.onDidReceiveMessage(
       (message) => {
         switch (message.command) {
           case "jumpToFunction":
@@ -130,10 +130,7 @@ export class MermaidWebviewPanel {
      * @param functionName - The name of the function to jump to.
      */
   private async jumpToFunction(functionName: string): Promise<void> {
-
-    // vscode.window.showInformationMessage(`Jumping to function: ${functionName}`);
-
-    // Search for the function definition in all Python files in the workspace
+    // Search for the function definition in all target files in the workspace
     const files = await vscode.workspace.findFiles('**/*.{py,ts,java,js}');
 
     if (files.length === 0) {
@@ -141,36 +138,37 @@ export class MermaidWebviewPanel {
       return;
     }
 
-    // Open each file and search for the function definition
-    files.forEach(file => {
-      vscode.workspace.openTextDocument(file).then(document => {
+    const patterns = [
+      new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
+      new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`),          // 普通のJS/TS
+      new RegExp(`\\bexport\\s+function\\s+${functionName}\\s*\\(`),// export付き
+      new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*\\(`),        // const fn = (
+      new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*async\\s*\\(`),
+      new RegExp(`\\b${functionName}\\s*\\([^)]*\\)\\s*{`),         // Java/TS シグネチャ
+      new RegExp(`\\bfunction\\s+${functionName}(?:<[^>]+>)?\\s*\\(`)
+    ];
 
+    // 順次ファイルを検索して、最初に見つかった関数にジャンプ
+    for (const file of files) {
+      try {
+        const document = await vscode.workspace.openTextDocument(file);
         const text = document.getText();
 
-      const patterns = [
-        new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
-  new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`),          // 普通のJS/TS
-  new RegExp(`\\bexport\\s+function\\s+${functionName}\\s*\\(`),// export付き
-  new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*\\(`),        // const fn = (
-  new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*async\\s*\\(`),
-  new RegExp(`\\b${functionName}\\s*\\([^)]*\\)\\s*{`),         // Java/TS シグネチャ
-  new RegExp(`\\bfunction\\s+${functionName}(?:<[^>]+>)?\\s*\\(`)
-      ];
         for (const regex of patterns) {
-      const match = regex.exec(text);
+          const match = regex.exec(text);
           if (match) {
-          vscode.window.showInformationMessage(`✅ ${file.fsPath} で見つかった: ${match[0]}`);
-          const pos = document.positionAt(match.index);
-          vscode.window.showTextDocument(document, { selection: new vscode.Range(pos, pos) });
-        return; // 最初に見つけた関数で終了
-      }else{
-        vscode.window.showInformationMessage(`❌ ${file.fsPath} には ${functionName} が見つからなかった`);
+            vscode.window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
+            const pos = document.positionAt(match.index);
+            await vscode.window.showTextDocument(document, { selection: new vscode.Range(pos, pos) });
+            return; // 最初に見つけた関数で終了
+          }
+        }
+      } catch (error) {
+        console.error(`Error reading file ${file.fsPath}:`, error);
       }
     }
-  });
 
-
-
-});
+    // if no function was found in any file
+    vscode.window.showInformationMessage(`❌ ${functionName} was not found`);
   }
 }

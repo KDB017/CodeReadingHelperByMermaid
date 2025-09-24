@@ -17,13 +17,11 @@ export class MermaidWebviewPanel {
    * The webview panel instance
    */
   private readonly panel: vscode.WebviewPanel;
-  // private readonly _extensionUri: vscode.Uri;
 
   /**
    * The text document being displayed in the webview panel
    */
   private document: vscode.TextDocument;
-  // private _isFileChange : boolean;
 
 
 
@@ -34,8 +32,6 @@ export class MermaidWebviewPanel {
    */
   private constructor(panel: vscode.WebviewPanel, document:vscode.TextDocument) {
     this.panel = panel;
-    // this._isFileChange = false;
-    // this._extensionUri = extensionUri;
     this.document=  document;
 
     this.update();
@@ -140,7 +136,6 @@ export class MermaidWebviewPanel {
 
     const patterns = [
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
-      new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`),          // 普通のJS/TS
       new RegExp(`\\bexport\\s+function\\s+${functionName}\\s*\\(`),// export付き
       new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*\\(`),        // const fn = (
       new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*async\\s*\\(`),
@@ -159,8 +154,14 @@ export class MermaidWebviewPanel {
           if (match) {
             vscode.window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
             const pos = document.positionAt(match.index);
-            await vscode.window.showTextDocument(document, { selection: new vscode.Range(pos, pos) });
-            return; // 最初に見つけた関数で終了
+            
+            // Found file is opened in a left editor
+            await vscode.window.showTextDocument(document, { 
+              selection: new vscode.Range(pos, pos),
+              viewColumn: vscode.ViewColumn.One,  
+            });
+            
+            return; 
           }
         }
       } catch (error) {

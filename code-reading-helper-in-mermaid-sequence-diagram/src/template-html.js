@@ -1,12 +1,14 @@
-import * as vscode from 'vscode';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getHtmlForWebview = void 0;
 /**
  * html for displaying webView.
  * this code is include App.svelte in Mermaid Chart
  */
-export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): string {
-  //it is linted that panel is unused, but we need it to set webview options like enabling scripts.
-  console.log(panel);
-  return `
+function getHtmlForWebview(panel, code) {
+    //it is linted that panel is unused, but we need it to set webview options like enabling scripts.
+    console.log(panel);
+    return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -79,6 +81,7 @@ export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): str
         </div>
       </div>
       <script>
+        let maxZoomLevel=5
         const vscode = acquireVsCodeApi();
         // get DOM elements
         const diagramContainer = document.getElementById('diagram-container');
@@ -101,21 +104,6 @@ export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): str
           if (panzoomInstance) {
             panzoomInstance.destroy();
           }
-          
-          panzoomInstance = Panzoom(mermaidDiagram, {
-            maxScale: 5,
-            minScale: 0.1,
-            contain: 'outside',
-            disablePan: !isPanEnabled,
-            disableZoom: false
-          });
-          
-          // Zoom level update event listener
-          mermaidDiagram.addEventListener('panzoomchange', (event) => {
-            const scale = Math.round(panzoomInstance.getScale() * 100);
-            zoomLevelSpan.textContent = scale + '%';
-          });
-        }
 
         // Button event setup
         function setupButtons() {
@@ -145,6 +133,21 @@ export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): str
             }
           });
         }
+
+        window.addEventListener("message", async (event) => {
+          if (event.data.type === "update") {
+            console.log("Message received in webview:", event.data);
+            const { content, maxZoom } = event.data;
+            mermaidDiagram.innerHTML = content;
+            
+            if (content) {
+              maxZoomLevel = maxZoom;
+            }
+            if (panzoomInstance) {
+              panzoomInstance.setOptions({ maxScale: maxZoomLevel });
+            }
+          }
+        });
 
         // Mermaid rendering 
         mermaid.run({
@@ -197,3 +200,5 @@ export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): str
     </body>
     </html>`;
 }
+exports.getHtmlForWebview = getHtmlForWebview;
+//# sourceMappingURL=template-html.js.map

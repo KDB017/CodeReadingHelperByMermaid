@@ -419,3 +419,4 @@ FodyWeavers.xsd
 
 #test
 src/test/
+.vscode-test/

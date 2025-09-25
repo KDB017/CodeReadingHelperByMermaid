@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
+// import { Constants } from './constants';
 
 /**
  * Manages the Mermaid Webview panel
+ * using Mermaid Chart code
  */
 export class MermaidWebviewPanel {
 
@@ -23,6 +25,11 @@ export class MermaidWebviewPanel {
    */
   private document: vscode.TextDocument;
 
+  /**
+   * The last content of the document
+   */
+  // private lastContent: string
+
 
 
   /**
@@ -30,24 +37,22 @@ export class MermaidWebviewPanel {
    * @param panel webview panel
    * @param document vscode text document
    */
-  private constructor(panel: vscode.WebviewPanel, document:vscode.TextDocument) {
+  private constructor(panel: vscode.WebviewPanel, document: vscode.TextDocument) {
     this.panel = panel;
-    this.document=  document;
+    this.document = document;
+    // this.lastContent = "";
 
     this.update();
     this.setupListeners();
-    
-
-
-    // When the panel is closed, dispose of resources
-    this.panel.onDidDispose(() => this.dispose(), null);
   }
 
   /**
    * Shows the Mermaid webview panel.
    * @param document vscode text document
    */
-  public static show( document:vscode.TextDocument): void{
+
+  //todo if mermaid code is changed,  update the webview content
+  public static show(document: vscode.TextDocument): void {
     // if already opened → update
     if (MermaidWebviewPanel.currentPanel) {
       MermaidWebviewPanel.currentPanel.panel.reveal();
@@ -78,10 +83,20 @@ export class MermaidWebviewPanel {
    */
   private update(): void {
 
-    if(!this.panel.webview.html){
+    //Fetch the configuration from VSCode workspace
+    // const config = vscode.workspace.getConfiguration();
+    // const maxZoom = config.get<number>(Constants.MAX_ZOOM, 5);
+    // this.lastContent = this.document.getText() || " ";
+
+    if (!this.panel.webview.html) {
       this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText());
     }
-  
+    // this.panel.webview.postMessage({
+    //   type: "update",
+    //   content: this.lastContent,
+    //   maxZoom: maxZoom,
+    // });
+
   }
 
   /**
@@ -99,10 +114,9 @@ export class MermaidWebviewPanel {
       if (editor?.document?.languageId.startsWith('mermaid')) {
         if (editor.document.uri.toString() !== this.document?.uri.toString()) {
           this.document = editor.document;
-          // this._isFileChange = true;
           debouncedUpdate();
         }
-      } 
+      }
     });
 
     this.panel.webview.onDidReceiveMessage(
@@ -113,9 +127,7 @@ export class MermaidWebviewPanel {
             this.jumpToFunction(functionName);
             break;
         }
-      },
-      null,
-      []
+      }
     );
   }
 
@@ -135,15 +147,13 @@ export class MermaidWebviewPanel {
     }
 
     const patterns = [
+      // def functionName() :python
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
-      new RegExp(`\\bexport\\s+function\\s+${functionName}\\s*\\(`),// export付き
-      new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*\\(`),        // const fn = (
-      new RegExp(`\\bconst\\s+${functionName}\\s*=\\s*async\\s*\\(`),
-      new RegExp(`\\b${functionName}\\s*\\([^)]*\\)\\s*{`),         // Java/TS シグネチャ
-      new RegExp(`\\bfunction\\s+${functionName}(?:<[^>]+>)?\\s*\\(`)
+      new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`),          // JavaScript
+      new RegExp(`\\b${functionName}\\s*:\\s*function`),        // JavaScript method
     ];
 
-    // 順次ファイルを検索して、最初に見つかった関数にジャンプ
+    // Search for the function definition in all target files,and open the first one found
     for (const file of files) {
       try {
         const document = await vscode.workspace.openTextDocument(file);
@@ -154,14 +164,14 @@ export class MermaidWebviewPanel {
           if (match) {
             vscode.window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
             const pos = document.positionAt(match.index);
-            
-            // Found file is opened in a left editor
-            await vscode.window.showTextDocument(document, { 
+
+            // Found file is opened in a mmd file
+            await vscode.window.showTextDocument(document, {
               selection: new vscode.Range(pos, pos),
-              viewColumn: vscode.ViewColumn.One,  
+              viewColumn: vscode.ViewColumn.One,
             });
-            
-            return; 
+
+            return;
           }
         }
       } catch (error) {

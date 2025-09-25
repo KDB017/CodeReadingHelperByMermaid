@@ -9,6 +9,6 @@ compile:
 lint:
 	$(YarnOrNPM) run lint
 unittest:
-	$(YarnOrNPM) run unittest
+	$(YarnOrNPM) test
 
 

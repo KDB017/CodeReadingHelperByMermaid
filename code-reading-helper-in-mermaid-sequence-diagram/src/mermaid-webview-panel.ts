@@ -7,6 +7,8 @@ import { debounce } from './debounce';
 /**
  * Manages the Mermaid Webview panel
  * using Mermaid Chart code
+ * 
+ * to do if webview is closed,can open a new one : resolve 2025/9/25
  */
 export class MermaidWebviewPanel {
 
@@ -30,6 +32,12 @@ export class MermaidWebviewPanel {
    */
   // private lastContent: string
 
+  /**
+   * Disposables to clean up resources
+   */
+  private readonly disposables: vscode.Disposable[] = [];
+
+
 
 
   /**
@@ -40,7 +48,6 @@ export class MermaidWebviewPanel {
   private constructor(panel: vscode.WebviewPanel, document: vscode.TextDocument) {
     this.panel = panel;
     this.document = document;
-    // this.lastContent = "";
 
     this.update();
     this.setupListeners();
@@ -53,13 +60,12 @@ export class MermaidWebviewPanel {
 
   //todo if mermaid code is changed,  update the webview content
   public static show(document: vscode.TextDocument): void {
-    // if already opened → update
+
     if (MermaidWebviewPanel.currentPanel) {
       MermaidWebviewPanel.currentPanel.panel.reveal();
       return;
     }
 
-    // else open a new one
     const panel = vscode.window.createWebviewPanel(
       'mermaidPreview',
       'Mermaid Preview',
@@ -68,48 +74,56 @@ export class MermaidWebviewPanel {
     );
 
     MermaidWebviewPanel.currentPanel = new MermaidWebviewPanel(panel, document);
+
   }
 
   /**
    * Dispose of resources.
    */
   public dispose(): void {
+
     MermaidWebviewPanel.currentPanel = undefined;
-    this.panel.dispose();
+    while (this.disposables.length) {
+      const disposable = this.disposables.pop();
+      if (disposable) {
+        disposable.dispose();
+      }
+    }
   }
 
   /**
    * Update the webview content.
    */
   private update(): void {
-
     //Fetch the configuration from VSCode workspace
     // const config = vscode.workspace.getConfiguration();
     // const maxZoom = config.get<number>(Constants.MAX_ZOOM, 5);
     // this.lastContent = this.document.getText() || " ";
 
-    if (!this.panel.webview.html) {
-      this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText());
-    }
-    // this.panel.webview.postMessage({
-    //   type: "update",
-    //   content: this.lastContent,
-    //   maxZoom: maxZoom,
-    // });
-
+    // realtime update
+    this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText());
   }
+
+
 
   /**
    * Set up listeners for document changes and messages from the webview.
    */
   private setupListeners(): void {
-    const debouncedUpdate = debounce(() => this.update(), 300);
+
+    // Debounce the update to avoid excessive updates
+    const debouncedUpdate = debounce(() => {
+      this.update();
+    }, 300);
+
+    // Listen for document changes to update the webview
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document === this.document) {
         debouncedUpdate();
       }
-    });
+    }, this.disposables);
 
+    // Listen for active editor changes to update the document if needed
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor?.document?.languageId.startsWith('mermaid')) {
         if (editor.document.uri.toString() !== this.document?.uri.toString()) {
@@ -117,7 +131,7 @@ export class MermaidWebviewPanel {
           debouncedUpdate();
         }
       }
-    });
+    }, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
       (message) => {
@@ -127,8 +141,11 @@ export class MermaidWebviewPanel {
             this.jumpToFunction(functionName);
             break;
         }
-      }
-    );
+      }, this.disposables);
+
+    this.panel.onDidDispose(() => {
+      this.dispose();
+    }, null, this.disposables);
   }
 
 

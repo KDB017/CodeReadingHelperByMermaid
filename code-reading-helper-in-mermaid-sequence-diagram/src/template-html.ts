@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 /**
  * html for displaying webView.
  * this code is include App.svelte in Mermaid Chart
+ * to do separate script and style
+ * 
  */
 export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): string {
   //it is linted that panel is unused, but we need it to set webview options like enabling scripts.

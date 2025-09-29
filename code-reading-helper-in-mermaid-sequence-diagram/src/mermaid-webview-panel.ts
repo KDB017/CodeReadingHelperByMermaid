@@ -5,9 +5,8 @@ import { debounce } from './debounce';
 // import { Constants } from './constants';
 
 /**
- * Manages the Mermaid Webview panel
- * using Mermaid Chart code
- * 
+ * Mermaid webview panel
+ *
  * to do if webview is closed,can open a new one : resolve 2025/9/25
  */
 export class MermaidWebviewPanel {
@@ -151,34 +150,63 @@ export class MermaidWebviewPanel {
 
 
   /**
-     * Jumps to the specified function in the codebase.
-     * @param functionName - The name of the function to jump to.
-     */
+    * Jumps to the specified function in the codebase.
+    * @param functionName - The name of the function to jump to.
+    */
   private async jumpToFunction(functionName: string): Promise<void> {
+    console.log('=== jumpToFunction DEBUG ===');
+    console.log('🔍 Searching for function:', `"${functionName}"`);
+    console.log('🔍 Function name length:', functionName.length);
+    console.log('🔍 Function name char codes:', functionName.split('').map(c => c.charCodeAt(0)));
+    
     // Search for the function definition in all target files in the workspace
     const files = await vscode.workspace.findFiles('**/*.{py,ts,java,js}');
+    
+    console.log('📁 Total files found:', files.length);
+    console.log('📁 File paths:');
+    files.slice(0, 10).forEach((file, index) => {
+      console.log(`  ${index + 1}. ${file.fsPath}`);
+    });
+    if (files.length > 10) {
+      console.log(`  ... and ${files.length - 10} more files`);
+    }
 
     if (files.length === 0) {
       vscode.window.showErrorMessage('target files not found');
       return;
     }
 
+    // limited area to wide area
     const patterns = [
-      // def functionName() :python
+      // More specific patterns first
+      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*\\(`), // TypeScript methods
+      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)[\\s\\S]*\\s${functionName}\\s*\\(`), // java methods
+      new RegExp(`\\bfunction\\s+${functionName}[\\s\\S]*?\\(`),    // JavaScript/TypeScript function with multiline generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
-      new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`),          // JavaScript
-      new RegExp(`\\b${functionName}\\s*:\\s*function`),        // JavaScript method
-    ];
+      new RegExp(`\\b${functionName}\\s*:\\s*function`),            // JavaScript method
+      new RegExp(`^\\s*${functionName}\\s*\\(`)                     // normal function
+    ]
+    
+    console.log('🔍 Search patterns:');
+    patterns.forEach((pattern, index) => {
+      console.log(`  ${index + 1}. ${pattern.source}`);
+    });
 
-    // Search for the function definition in all target files,and open the first one found
-    for (const file of files) {
-      try {
+    for (const pattern of patterns) {
+      for (const file of files) {
+        try {
         const document = await vscode.workspace.openTextDocument(file);
         const text = document.getText();
-
-        for (const regex of patterns) {
-          const match = regex.exec(text);
+        console.log(`📖 File content length: ${text.length} characters`);
+        const match = pattern.exec(text);
           if (match) {
+            console.log('✅ MATCH FOUND!');
+            console.log(`📍 Pattern: ${pattern.source}`);
+            console.log(`📍 Match details:`, {
+              fullMatch: match[0],
+              index: match.index,
+              groups: match.slice(1)
+            });
             vscode.window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
             const pos = document.positionAt(match.index);
 
@@ -187,16 +215,22 @@ export class MermaidWebviewPanel {
               selection: new vscode.Range(pos, pos),
               viewColumn: vscode.ViewColumn.One,
             });
-
+            console.log('✅ Jump completed successfully');
             return;
           }
+          else {
+            console.log('❌ No match for this pattern');
+          }
+        } catch (error: any) {
+          console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
+          }
+
+          console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
         }
-      } catch (error) {
-        console.error(`Error reading file ${file.fsPath}:`, error);
-      }
     }
 
     // if no function was found in any file
+    console.log('❌ Function not found in any file');
     vscode.window.showInformationMessage(`❌ ${functionName} was not found`);
   }
 }

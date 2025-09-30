@@ -134,6 +134,7 @@ export class MermaidWebviewPanel {
 
     this.panel.webview.onDidReceiveMessage(
       (message) => {
+        
         switch (message.command) {
           case "jumpToFunction":
             const functionName = message.functionName;
@@ -187,7 +188,7 @@ export class MermaidWebviewPanel {
       new RegExp(`^\\s*${functionName}\\s*\\(`)                     // normal function
     ]
     
-    console.log('🔍 Search patterns:');
+    console.log('Search patterns:');
     patterns.forEach((pattern, index) => {
       console.log(`  ${index + 1}. ${pattern.source}`);
     });

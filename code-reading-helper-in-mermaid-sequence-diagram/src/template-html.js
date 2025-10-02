@@ -1,12 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getHtmlForWebview = void 0;
+const vscode = require("vscode");
 /**
  * html for displaying webView.
  * this code is include App.svelte in Mermaid Chart
+ * to do separate script and style
+ *
  */
 function getHtmlForWebview(panel, code) {
     //it is linted that panel is unused, but we need it to set webview options like enabling scripts.
+    const orangeThreshold = vscode.workspace.getConfiguration().get('function.color.orange.Thresholds: Thresholds for Orange') ?? 3; // 閾値1
+    const redThreshold = vscode.workspace.getConfiguration().get('function.color.red.Thresholds: Thresholds for Red') ?? 10; // 閾値10
+    console.log(`Orange Threshold: ${orangeThreshold}, Red Threshold: ${redThreshold}`);
     console.log(panel);
     return `
     <!DOCTYPE html>
@@ -81,7 +87,6 @@ function getHtmlForWebview(panel, code) {
         </div>
       </div>
       <script>
-        let maxZoomLevel=5
         const vscode = acquireVsCodeApi();
         // get DOM elements
         const diagramContainer = document.getElementById('diagram-container');
@@ -104,6 +109,21 @@ function getHtmlForWebview(panel, code) {
           if (panzoomInstance) {
             panzoomInstance.destroy();
           }
+          
+          panzoomInstance = Panzoom(mermaidDiagram, {
+            maxScale: 5,
+            minScale: 0.1,
+            contain: 'outside',
+            disablePan: !isPanEnabled,
+            disableZoom: false
+          });
+          
+          // Zoom level update event listener
+          mermaidDiagram.addEventListener('panzoomchange', (event) => {
+            const scale = Math.round(panzoomInstance.getScale() * 100);
+            zoomLevelSpan.textContent = scale + '%';
+          });
+        }
 
         // Button event setup
         function setupButtons() {
@@ -134,21 +154,6 @@ function getHtmlForWebview(panel, code) {
           });
         }
 
-        window.addEventListener("message", async (event) => {
-          if (event.data.type === "update") {
-            console.log("Message received in webview:", event.data);
-            const { content, maxZoom } = event.data;
-            mermaidDiagram.innerHTML = content;
-            
-            if (content) {
-              maxZoomLevel = maxZoom;
-            }
-            if (panzoomInstance) {
-              panzoomInstance.setOptions({ maxScale: maxZoomLevel });
-            }
-          }
-        });
-
         // Mermaid rendering 
         mermaid.run({
           querySelector: '.mermaid',
@@ -176,10 +181,10 @@ function getHtmlForWebview(panel, code) {
               if (fn === "") {
                 return;
               }
-              if (counts[fn] >= 1) {
+              if (counts[fn] >= ${orangeThreshold}) {
                 element.style.fill = "orange";
               }
-              if (counts[fn] >= 3) {
+              if (counts[fn] >= ${redThreshold}) {
                 element.style.fill = "red";
               }
               element.classList.add('clickable');

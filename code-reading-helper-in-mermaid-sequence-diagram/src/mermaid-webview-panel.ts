@@ -6,7 +6,7 @@ import { debounce } from './debounce';
 
 /**
  * Mermaid webview panel
- *
+ * it is based on previewPanel in Mermaid preview 
  * to do if webview is closed,can open a new one : resolve 2025/9/25
  */
 export class MermaidWebviewPanel {
@@ -164,28 +164,20 @@ export class MermaidWebviewPanel {
     const files = await vscode.workspace.findFiles('**/*.{py,ts,java,js}');
     
     console.log('📁 Total files found:', files.length);
-    console.log('📁 File paths:');
-    files.slice(0, 10).forEach((file, index) => {
-      console.log(`  ${index + 1}. ${file.fsPath}`);
-    });
-    if (files.length > 10) {
-      console.log(`  ... and ${files.length - 10} more files`);
-    }
-
+    
     if (files.length === 0) {
       vscode.window.showErrorMessage('target files not found');
       return;
     }
 
-    // limited area to wide area
+    // from limited area to wide area
     const patterns = [
       // More specific patterns first
-      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*\\(`), // TypeScript methods
-      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)[\\s\\S]*\\s${functionName}\\s*\\(`), // java methods
-      new RegExp(`\\bfunction\\s+${functionName}[\\s\\S]*?\\(`),    // JavaScript/TypeScript function with multiline generics
+      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
+      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
+      new RegExp(`\\bfunction\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript function with multiline generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
       new RegExp(`\\b${functionName}\\s*:\\s*function`),            // JavaScript method
-      new RegExp(`^\\s*${functionName}\\s*\\(`)                     // normal function
     ]
     
     console.log('Search patterns:');
@@ -233,5 +225,14 @@ export class MermaidWebviewPanel {
     // if no function was found in any file
     console.log('❌ Function not found in any file');
     vscode.window.showInformationMessage(`❌ ${functionName} was not found`);
+  }
+
+  /**
+   * this method is for test
+   * Gets the current MermaidWebviewPanel instance.
+   * @returns MermaidWebviewPanel current panel instance
+   */
+  public static getCurrentPanel() {
+    return MermaidWebviewPanel.currentPanel;
   }
 }

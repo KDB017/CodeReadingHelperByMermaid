@@ -420,3 +420,9 @@ FodyWeavers.xsd
 #test
 src/test/
 .vscode-test/
+TestScripts/
+**/*.mmd
+
+# svn
+.svn/
+

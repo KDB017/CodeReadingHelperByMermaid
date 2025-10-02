@@ -7,8 +7,8 @@ import * as vscode from 'vscode';
  */
 export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): string {
   //it is linted that panel is unused, but we need it to set webview options like enabling scripts.
-  let orangeThreshold = vscode.workspace.getConfiguration().get<number>('function.color.orange.Thresholds: Thresholds for Orange') ?? 3; // 閾値1
-  let redThreshold = vscode.workspace.getConfiguration().get<number>('function.color.red.Thresholds: Thresholds for Red') ?? 10; // 閾値10
+  const orangeThreshold = vscode.workspace.getConfiguration().get<number>('function.color.orange.Thresholds: Thresholds for Orange') ?? 3; // 閾値1
+  const redThreshold = vscode.workspace.getConfiguration().get<number>('function.color.red.Thresholds: Thresholds for Red') ?? 10; // 閾値10
   console.log(`Orange Threshold: ${orangeThreshold}, Red Threshold: ${redThreshold}`);
   console.log(panel);
   return `

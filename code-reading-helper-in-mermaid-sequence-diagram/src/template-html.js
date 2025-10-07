@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getHtmlForWebview = void 0;
 const vscode = require("vscode");
+const constants_1 = require("./constants");
 /**
  * html for displaying webView.
  * this code is include App.svelte in Mermaid Chart
@@ -66,8 +67,8 @@ function getHtmlForWebview(panel, code) {
           background: #f9f9f9;
         }
       </style>
-      <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.6.0/dist/panzoom.min.js"></script>
+      <script src=${constants_1.Constants.MERMAID}></script>
+      <script src=${constants_1.Constants.PANZOOM}></script>
     </head>
     <body>
     <div class="container">

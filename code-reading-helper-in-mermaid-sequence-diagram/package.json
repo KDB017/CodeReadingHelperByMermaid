@@ -1,9 +1,9 @@
 {
-  "name": "code-reading-helper-in-mermaid-sequence-diagram",
-  "displayName": "code-reading-helper-in-mermaid-sequence-diagram",
+  "name": "code-reading-helper-by-mermaid-sequence-diagram",
+  "displayName": "code-reading-helper-by-mermaid-sequence-diagram",
   "description": "show mermaid sequencediagrams in webview and click to jump function",
   "version": "1.0.0",
-  "publisher": "kazu",
+  "publisher": "kazu017",
   "engines": {
     "vscode": "^1.104.0"
   },
@@ -23,7 +23,9 @@
     "sequence diagram",
     "code reading"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -49,16 +51,6 @@
     "configuration": {
       "title": "Mermaid Sequence Preview include click to jump function",
       "properties": {
-        "preview.mermaidChart.baseUrl": {
-          "type": "string",
-          "default": "https://www.mermaidchart.com",
-          "description": "Base URL for Mermaid Chart"
-        },
-        "mermaid.vscode.max_Zoom": {
-          "type": "number",
-          "default": 5,
-          "description": "Defines the maximum zoom level for diagrams, specified as a multiple of 100%. For example, a value of 5 means the maximum zoom is 500%."
-        },
         "function.color.orange.Thresholds: Thresholds for Orange": {
           "type": "number",
           "default": 3,

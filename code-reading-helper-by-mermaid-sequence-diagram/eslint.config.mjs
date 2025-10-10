@@ -33,7 +33,7 @@ export default [
                 },
                 {
                     selector: "property",
-                    format: ["camelCase"],
+                    format: ["UPPER_CASE", "camelCase"],
                     filter: {
                         regex: "^_",
                         match: false,

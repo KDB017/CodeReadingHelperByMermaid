@@ -1,4 +1,4 @@
-# code-reading-helper-in-mermaid-sequence-diagram README
+# code-reading-helper-by-mermaid-sequence-diagram README
 
 This is the README for your extension "code-reading-helper-in-mermaid-sequence-diagram". After writing up a brief description, we recommend including the following sections.
 

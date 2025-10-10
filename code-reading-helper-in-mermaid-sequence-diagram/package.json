@@ -57,46 +57,46 @@
           "description": "Threshold for orange color coding"
         },
         "function.color.red.Thresholds: Thresholds for Red": {
-                    "type": "number",
-                    "default": 10,
-                    "description": "Threshold for red color coding"
-                }
-      }
-      
-    },
-      "menus": {
-        "editor/title": [
-          {
-            "command": "mermaidWebview.showPreview",
-            "when": "resourceLangId == mermaid",
-            "group": "navigation"
-          }
-        ]
+          "type": "number",
+          "default": 10,
+          "description": "Threshold for red color coding"
+        }
       }
     },
-    "scripts": {
-      "vscode:prepublish": "npm run compile",
-      "compile": "tsc -p ./",
-      "watch": "tsc -watch -p ./",
-      "pretest": "npm run compile && npm run lint",
-      "lint": "eslint src",
-      "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-      "@types/glob": "^8.1.0",
-      "@types/mocha": "^10.0.10",
-      "@types/node": "22.x",
-      "@types/vscode": "^1.104.0",
-      "@typescript-eslint/eslint-plugin": "^8.42.0",
-      "@typescript-eslint/parser": "^8.42.0",
-      "@vscode/test-cli": "^0.0.11",
-      "@vscode/test-electron": "^2.5.2",
-      "eslint": "^9.34.0",
-      "glob": "^10.3.10",
-      "mocha": "^10.2.0",
-      "typescript": "^5.9.2"
-    },
-    "dependencies": {
-      "@panzoom/panzoom": "^4.6.0"
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mermaidWebview.showPreview",
+          "when": "resourceLangId == mermaid",
+          "group": "navigation"
+        }
+      ]
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.104.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.34.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@panzoom/panzoom": "^4.6.0"
   }
+}

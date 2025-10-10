@@ -42,7 +42,6 @@ export default [
             ],
             "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
             "@typescript-eslint/explicit-function-return-type": "warn",
-            "@typescript-eslint/no-explicit-any": "warn",
             "@typescript-eslint/no-non-null-assertion": "warn",
             // 型情報が必要なルールをコメントアウト
             // "@typescript-eslint/prefer-nullish-coalescing": "error",

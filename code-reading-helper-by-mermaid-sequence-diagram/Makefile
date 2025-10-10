@@ -10,5 +10,7 @@ lint:
 	$(YarnOrNPM) run lint
 unittest:
 	$(YarnOrNPM) test
+watch:
+	$(YarnOrNPM) run watch
 
 

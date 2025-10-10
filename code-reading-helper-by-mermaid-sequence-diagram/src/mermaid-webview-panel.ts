@@ -178,7 +178,7 @@ export class MermaidWebviewPanel {
       new RegExp(`\\bfunction\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript function with multiline generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
       new RegExp(`\\b${functionName}\\s*:\\s*function`),            // JavaScript method
-    ]
+    ];
     
     console.log('Search patterns:');
     patterns.forEach((pattern, index) => {
@@ -232,7 +232,7 @@ export class MermaidWebviewPanel {
    * Gets the current MermaidWebviewPanel instance.
    * @returns MermaidWebviewPanel current panel instance
    */
-  public static getCurrentPanel() {
+  public static getCurrentPanel():MermaidWebviewPanel | undefined {
     return MermaidWebviewPanel.currentPanel;
   }
 }

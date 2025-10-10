@@ -7,7 +7,8 @@ import { Constants } from './constants';
  * 
  */
 export function getHtmlForWebview(panel: vscode.WebviewPanel, code: string): string {
-  //it is linted that panel is unused, but we need to move inline text to other file later.
+  // it is linted that panel is unused, but we need to move inline text to other file later.
+  ((panel: vscode.WebviewPanel): vscode.WebviewPanel => panel)(panel);
   const orangeThreshold = vscode.workspace.getConfiguration().get<number>('function.color.orange.Thresholds: Thresholds for Orange') ?? 3; // 閾値1
   const redThreshold = vscode.workspace.getConfiguration().get<number>('function.color.red.Thresholds: Thresholds for Red') ?? 10; // 閾値10
   // console.log(`Orange Threshold: ${orangeThreshold}, Red Threshold: ${redThreshold}`);

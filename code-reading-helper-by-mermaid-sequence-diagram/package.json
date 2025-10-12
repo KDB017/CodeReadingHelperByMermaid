@@ -26,6 +26,9 @@
   "activationEvents": [
     "onLanguage"
   ],
+  "extensionDependencies": [
+        "suwa-sh.multilang-sequence-reverse"
+    ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

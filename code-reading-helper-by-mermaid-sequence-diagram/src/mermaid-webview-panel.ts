@@ -175,9 +175,9 @@ export class MermaidWebviewPanel {
       // More specific patterns first
       new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
       new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
-      new RegExp(`\\b(const|var|let)\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function and arrow function, but now arrow function is not matched
+      new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript,typescript type function and arrow function, but now arrow function is not matched
       new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
-      new RegExp(`\\bfunction\\s(*)?+${functionName}[\\s\\S]*?\\(`),    // TypeScript function with multiline generics,Javascript specific function
+      new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
     ];
     

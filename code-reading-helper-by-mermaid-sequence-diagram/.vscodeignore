@@ -10,7 +10,6 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 TestScripts/**
-out/test/**
 クラス図.asta
 
 

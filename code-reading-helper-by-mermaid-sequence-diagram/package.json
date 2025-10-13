@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "publisher": "kazu017",
   "engines": {
-    "vscode": "^1.104.0"
+    "vscode": "^1.105.0"
   },
   "repository": {
     "type": "git",
@@ -26,9 +26,6 @@
   "activationEvents": [
     "onLanguage"
   ],
-  "extensionDependencies": [
-        "suwa-sh.multilang-sequence-reverse"
-    ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -88,7 +85,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "@types/vscode": "^1.104.0",
+    "@types/vscode": "^1.105.0",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",
     "@vscode/test-cli": "^0.0.11",

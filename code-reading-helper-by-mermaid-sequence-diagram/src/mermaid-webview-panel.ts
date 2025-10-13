@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
-// import { Constants } from './constants';
 
 /**
  * Mermaid webview panel
@@ -177,6 +176,8 @@ export class MermaidWebviewPanel {
       new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
       new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript,typescript type function and arrow function, but now arrow function is not matched
       new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
+      new RegExp(`\\b(?:const|let|var)\\s+${functionName}\\s*=\\s*(?:<[^>]+>\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
+      new RegExp(`\\b(const|let|var)\\s+${functionName}\\s*=\\s*((([a-zA-Z]*\\s)?)|[a-zA-Z]*)\\s*=>\\s*\\(\\()?`),      // JavaScript method
       new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
     ];
@@ -235,5 +236,23 @@ export class MermaidWebviewPanel {
    */
   public static getCurrentPanel():MermaidWebviewPanel | undefined {
     return MermaidWebviewPanel.currentPanel;
+  }
+
+  /**
+   * this method is for test
+   * Gets the current document.
+   * @returns current document
+   */
+  public static getDocument():vscode.TextDocument | undefined {
+    return MermaidWebviewPanel.currentPanel?.document;
+  }
+
+  /**
+   * this method is for test
+   * Gets the current document.
+   * @returns current document
+   */
+  public testUpdate():void {
+    MermaidWebviewPanel.currentPanel?.update();
   }
 }

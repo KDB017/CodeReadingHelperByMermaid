@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import {WebviewPanel,TextDocument,Disposable,window,ViewColumn,workspace,TextDocumentShowOptions,Range}  from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
@@ -18,12 +18,12 @@ export class MermaidWebviewPanel {
   /**
    * The webview panel instance
    */
-  private readonly panel: vscode.WebviewPanel;
+  private readonly panel: WebviewPanel;
 
   /**
    * The text document being displayed in the webview panel
    */
-  private document: vscode.TextDocument;
+  private document: TextDocument;
 
   /**
    * The last content of the document
@@ -33,7 +33,7 @@ export class MermaidWebviewPanel {
   /**
    * Disposables to clean up resources
    */
-  private readonly disposables: vscode.Disposable[] = [];
+  private readonly disposables: Disposable[] = [];
 
 
 
@@ -43,7 +43,7 @@ export class MermaidWebviewPanel {
    * @param panel webview panel
    * @param document vscode text document
    */
-  private constructor(panel: vscode.WebviewPanel, document: vscode.TextDocument) {
+  private constructor(panel: WebviewPanel, document: TextDocument) {
     this.panel = panel;
     this.document = document;
 
@@ -57,17 +57,17 @@ export class MermaidWebviewPanel {
    */
 
   //todo if mermaid code is changed,  update the webview content
-  public static show(document: vscode.TextDocument): void {
+  public static show(document: TextDocument): void {
 
     if (MermaidWebviewPanel.currentPanel) {
       MermaidWebviewPanel.currentPanel.panel.reveal();
       return;
     }
 
-    const panel = vscode.window.createWebviewPanel(
+    const panel = window.createWebviewPanel(
       'mermaidPreview',
       'Mermaid Preview',
-      vscode.ViewColumn.Beside,
+      ViewColumn.Beside,
       { enableScripts: true }
     );
 
@@ -94,7 +94,7 @@ export class MermaidWebviewPanel {
    */
   private update(): void {
     //Fetch the configuration from VSCode workspace
-    // const config = vscode.workspace.getConfiguration();
+    // const config = workspace.getConfiguration();
     // const maxZoom = config.get<number>(Constants.MAX_ZOOM, 5);
     // this.lastContent = this.document.getText() || " ";
 
@@ -115,14 +115,14 @@ export class MermaidWebviewPanel {
     }, 300);
 
     // Listen for document changes to update the webview
-    vscode.workspace.onDidChangeTextDocument((event) => {
+    workspace.onDidChangeTextDocument((event) => {
       if (event.document === this.document) {
         debouncedUpdate();
       }
     }, this.disposables);
 
     // Listen for active editor changes to update the document if needed
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
+    window.onDidChangeActiveTextEditor((editor) => {
       if (editor?.document?.languageId.startsWith('mermaid')) {
         if (editor.document.uri.toString() !== this.document?.uri.toString()) {
           this.document = editor.document;
@@ -160,12 +160,12 @@ export class MermaidWebviewPanel {
     console.log('🔍 Function name char codes:', functionName.split('').map(c => c.charCodeAt(0)));
     
     // Search for the function definition in all target files in the workspace
-    const files = await vscode.workspace.findFiles('**/*.{py,ts,java,js}');
+    const files = await workspace.findFiles('**/*.{py,ts,java,js}');
     
     console.log('📁 Total files found:', files.length);
     
     if (files.length === 0) {
-      vscode.window.showErrorMessage('target files not found');
+      window.showErrorMessage('target files not found');
       return;
     }
 
@@ -176,8 +176,8 @@ export class MermaidWebviewPanel {
       new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
       new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript,typescript type function and arrow function, but now arrow function is not matched
       new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
-      new RegExp(`\\b(?:const|let|var)\\s+${functionName}\\s*=\\s*(?:<[^>]+>\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
-      new RegExp(`\\b(const|let|var)\\s+${functionName}\\s*=\\s*((([a-zA-Z]*\\s)?)|[a-zA-Z]*)\\s*=>\\s*\\(\\()?`),      // JavaScript method
+      // new RegExp(`\\b(?:const|let|var)\\s+${functionName}\\s*=\\s*(?:<[^>]+>\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
+      // new RegExp(`\\b(const|let|var)\\s+${functionName}\\s*=\\s*((([a-zA-Z]*\\s)?)|[a-zA-Z]*)\\s*=>\\s*\\(\\()?`),      // JavaScript method
       new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
       new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
     ];
@@ -190,7 +190,7 @@ export class MermaidWebviewPanel {
     for (const pattern of patterns) {
       for (const file of files) {
         try {
-        const document = await vscode.workspace.openTextDocument(file);
+        const document = await workspace.openTextDocument(file);
         const text = document.getText();
         console.log(`📖 File content length: ${text.length} characters`);
         const match = pattern.exec(text);
@@ -202,14 +202,15 @@ export class MermaidWebviewPanel {
               index: match.index,
               groups: match.slice(1)
             });
-            vscode.window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
+            window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
             const pos = document.positionAt(match.index);
 
+            const documentOptions:TextDocumentShowOptions={
+              selection: new Range(pos, pos),
+              viewColumn: ViewColumn.One,
+            };
             // Found file is opened in a mmd file
-            await vscode.window.showTextDocument(document, {
-              selection: new vscode.Range(pos, pos),
-              viewColumn: vscode.ViewColumn.One,
-            });
+            await window.showTextDocument(document, documentOptions);
             console.log('✅ Jump completed successfully');
             return;
           }
@@ -226,7 +227,7 @@ export class MermaidWebviewPanel {
 
     // if no function was found in any file
     console.log('❌ Function not found in any file');
-    vscode.window.showInformationMessage(`❌ ${functionName} was not found`);
+    window.showInformationMessage(`❌ ${functionName} was not found`);
   }
 
   /**
@@ -243,7 +244,7 @@ export class MermaidWebviewPanel {
    * Gets the current document.
    * @returns current document
    */
-  public static getDocument():vscode.TextDocument | undefined {
+  public static getDocument():TextDocument | undefined {
     return MermaidWebviewPanel.currentPanel?.document;
   }
 

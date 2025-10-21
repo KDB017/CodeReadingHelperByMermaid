@@ -172,14 +172,16 @@ export class MermaidWebviewPanel {
     // from limited area to wide area
     const patterns = [
       // More specific patterns first
-      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
-      new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
-      new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript,typescript type function and arrow function, but now arrow function is not matched
-      new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
+        new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
+        new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
+        new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
+        new RegExp(`\\b(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python failed lambda
+
       // new RegExp(`\\b(?:const|let|var)\\s+${functionName}\\s*=\\s*(?:<[^>]+>\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
       // new RegExp(`\\b(const|let|var)\\s+${functionName}\\s*=\\s*((([a-zA-Z]*\\s)?)|[a-zA-Z]*)\\s*=>\\s*\\(\\()?`),      // JavaScript method
       new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
-      new RegExp(`\\bdef\\s+${functionName}\\s*\\(`),               // Python
+      new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
+
     ];
     
     console.log('Search patterns:');
@@ -231,6 +233,8 @@ export class MermaidWebviewPanel {
   }
 
   /**
+              // escape functionName for safe regex interpolation
+              const escapedName = functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
    * this method is for test
    * Gets the current MermaidWebviewPanel instance.
    * @returns MermaidWebviewPanel current panel instance
@@ -241,8 +245,8 @@ export class MermaidWebviewPanel {
 
   /**
    * this method is for test
-   * Gets the current document.
-   * @returns current document
+                new RegExp(`\\b(export\\s+)?function\\s+${escapedName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
+                new RegExp(`\\b${escapedName}\\s*\\(`),      // JavaScript method
    */
   public static getDocument():TextDocument | undefined {
     return MermaidWebviewPanel.currentPanel?.document;

@@ -95,7 +95,6 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
         const resetZoomBtn = document.getElementById('reset-zoom');
         const togglePanBtn = document.getElementById('toggle-pan');
         const zoomLevelSpan = document.getElementById('zoom-level');
-
         // Panzoom instance
         let panzoomInstance = null;
         let isPanEnabled = false;
@@ -124,6 +123,7 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
           });
         }
 
+        console.log(mermaidDiagram);
         // Button event setup
         function setupButtons() {
           zoomInBtn.addEventListener('click', () => {
@@ -161,9 +161,13 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
             
             const elements = document.querySelectorAll('.messageText');
             elements.forEach(element => {
+              console.log(element);
               const raw = element.textContent;
               const colonIndex = raw.indexOf(":");
               let fn = raw.substring(colonIndex + 1);  // Remove leading numbers like "1:", "2.1:" etc.
+              console.log("raw:", raw);
+              console.log("colonIndex:", colonIndex);
+              console.log("fn before processing:", fn);
               fn = fn.substring(0, fn.indexOf("("));
               fn = fn.trim();
               counts[fn] = (counts[fn] || 0) + 1;

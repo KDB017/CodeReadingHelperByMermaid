@@ -13,4 +13,5 @@ unittest:
 watch:
 	$(YarnOrNPM) run watch
 
-
+clean:
+	rm -rf ./out ./node_modules

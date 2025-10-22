@@ -260,4 +260,21 @@ export class MermaidWebviewPanel {
   public testUpdate():void {
     MermaidWebviewPanel.currentPanel?.update();
   }
+
+  /**
+   * this method is for test
+   * view disposables after event. 
+   */
+  public testsetupListener(): void{
+    console.log(this.disposables);
+  }
+   /**
+   * this method is for test
+   * view disposables after event. 
+   */
+  public testGetWebview(): WebviewPanel{
+    return this.panel;
+  }
+
+
 }

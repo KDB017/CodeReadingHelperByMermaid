@@ -16,6 +16,7 @@ jobs:
 
     - name: Run tests
       run: make unittest
+      working-directory: code-reading-helper-by-mermaid-sequence-diagram
 
     # - name: configure
     #   run: ./configure

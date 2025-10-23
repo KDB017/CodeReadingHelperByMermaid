@@ -9,19 +9,22 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: configure
-      run: ./configure
+    - name: Run tests
+      run: make unittest
 
-    - name: Install dependencies
-      run: make
+    # - name: configure
+    #   run: ./configure
 
-    - name: Run check
-      run: make check
+    # - name: Install dependencies
+    #   run: make
 
-    - name: Run distcheck
-      run: make distcheck
+    # - name: Run check
+    #   run: make check
+
+    # - name: Run distcheck
+    #   run: make distcheck

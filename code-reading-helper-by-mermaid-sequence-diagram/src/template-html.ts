@@ -1,4 +1,4 @@
-import {workspace,WebviewPanel} from 'vscode';
+import { workspace, WebviewPanel, Uri } from 'vscode';
 import { Constants } from './constants';
 /**
  * html for displaying webView.
@@ -6,9 +6,15 @@ import { Constants } from './constants';
  * to do separate script and style
  * 
  */
-export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
+export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUri: Uri): string {
   // it is linted that panel is unused, but we need to move inline text to other file later.
   ((panel: WebviewPanel): WebviewPanel => panel)(panel);
+  console.log(extensionUri)
+  // Local path to main script run in the webview
+  // const scriptPathOnDisk = Uri.joinPath(extensionUri, 'media', 'main.js');
+
+  // And the uri we use to load this script in the webview
+  // const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk);
   const orangeThreshold = workspace.getConfiguration().get<number>('function.color.orange.Thresholds: Thresholds for Orange') ?? 3; // 閾値1
   const redThreshold = workspace.getConfiguration().get<number>('function.color.red.Thresholds: Thresholds for Red') ?? 10; // 閾値10
   // console.log(`Orange Threshold: ${orangeThreshold}, Red Threshold: ${redThreshold}`);
@@ -19,58 +25,65 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
     <head>
       <meta charset="UTF-8">
       <title>Mermaid Preview</title>
-      <style>
-        .mermaid {
-          background: #fff;
-          padding: 10px;
-          border-radius: 8px;
-        }
-        .clickable {
-          cursor: pointer;
-          color: blue;
-          text-decoration: underline;
-        }
-        .container {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-        }
-        .toolbar {
-          background: #f5f5f5;
-          border-bottom: 1px solid #ddd;
-          padding: 10px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .btn {
-          padding: 5px 10px;
-          border: 1px solid #ccc;
-          background: #fff;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-        }
-        .btn:hover {
-          background: #e9e9e9;
-        }
-        .zoom-info {
-          margin-left: auto;
-          font-size: 12px;
-          color: #666;
-        }
-        .diagram-container {
-          flex: 1;
-          overflow: hidden;
-          background: #f9f9f9;
-        }
-      </style>
       <script src=${Constants.MERMAID}></script>
       <script src=${Constants.PANZOOM}></script>
+      <style>
+              .mermaid {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .clickable {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .toolbar {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: #e9e9e9;
+        }
+
+        .zoom-info {
+            margin-left: auto;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .diagram-container {
+            flex: 1;
+            overflow: hidden;
+            background: #f9f9f9;
+        }
+      </style>
     </head>
     <body>
     <div class="container">
-        <!-- ツールバー -->
+        <!-- tool -->
         <div class="toolbar">
           <button class="btn" id="zoom-in" tabindex="0" accesskey="a">🔍+</button>
           <button class="btn" id="zoom-out" tabindex="1" accesskey="s">🔍-</button>
@@ -80,7 +93,7 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
             Zoom: <span id="zoom-level">100%</span>
           </div>
         </div>
-    <!-- ダイアグラムコンテナ -->
+    <!-- diagram container -->
         <div class="diagram-container" id="diagram-container">
           <div class="mermaid" id="mermaid-diagram">${code}</div>
         </div>
@@ -161,7 +174,7 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string): string {
             
             const elements = document.querySelectorAll('.messageText');
             elements.forEach(element => {
-              console.log(element);
+              // console.log(element);
               const raw = element.textContent;
               const colonIndex = raw.indexOf(":");
               let fn = raw.substring(colonIndex + 1);  // Remove leading numbers like "1:", "2.1:" etc.

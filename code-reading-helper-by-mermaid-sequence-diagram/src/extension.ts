@@ -20,7 +20,7 @@ export function activate(context: ExtensionContext): void {
         return;
       }
 
-      MermaidWebviewPanel.show(activeEditor.document);
+      MermaidWebviewPanel.show(activeEditor.document, context.extensionUri);
     })
   );
 }

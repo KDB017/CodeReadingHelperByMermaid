@@ -1,4 +1,4 @@
-import {WebviewPanel,TextDocument,Disposable,window,ViewColumn,workspace,TextDocumentShowOptions,Range}  from 'vscode';
+import {WebviewPanel,TextDocument,Disposable,window,ViewColumn,workspace,TextDocumentShowOptions,Range,Uri}  from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
@@ -25,6 +25,8 @@ export class MermaidWebviewPanel {
    */
   private document: TextDocument;
 
+  private readonly extensionUri: Uri;
+
   /**
    * The last content of the document
    */
@@ -43,9 +45,10 @@ export class MermaidWebviewPanel {
    * @param panel webview panel
    * @param document vscode text document
    */
-  private constructor(panel: WebviewPanel, document: TextDocument) {
+  private constructor(panel: WebviewPanel, document: TextDocument, extensionUri: Uri) {
     this.panel = panel;
     this.document = document;
+    this.extensionUri = extensionUri;
 
     this.update();
     this.setupListeners();
@@ -57,7 +60,7 @@ export class MermaidWebviewPanel {
    */
 
   //todo if mermaid code is changed,  update the webview content
-  public static show(document: TextDocument): void {
+  public static show(document: TextDocument, extensionUri: Uri): void {
 
     if (MermaidWebviewPanel.currentPanel) {
       MermaidWebviewPanel.currentPanel.panel.reveal();
@@ -71,7 +74,7 @@ export class MermaidWebviewPanel {
       { enableScripts: true }
     );
 
-    MermaidWebviewPanel.currentPanel = new MermaidWebviewPanel(panel, document);
+    MermaidWebviewPanel.currentPanel = new MermaidWebviewPanel(panel, document, extensionUri);
 
   }
 
@@ -99,7 +102,7 @@ export class MermaidWebviewPanel {
     // this.lastContent = this.document.getText() || " ";
 
     // realtime update
-    this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText());
+    this.panel.webview.html = getHtmlForWebview(this.panel, this.document.getText(), this.extensionUri);
   }
 
 
@@ -172,8 +175,12 @@ export class MermaidWebviewPanel {
     // from limited area to wide area
     const patterns = [
       // More specific patterns first
+  // Allow any number of modifiers or annotations in any order before the method name.
+  // - annotations like @Override or @com.example.Annotation(param)
+  // - modifiers like public, static, final, native, etc.
+  // The whole (modifier|annotation + whitespace) sequence can repeat zero or more times.
+  new RegExp(`\\b(?:(?:(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*${functionName}\\s*\\(`), // java methods with generics
         new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
-        new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?[a-zA-Z]*\\s*(<[a-zA-Z, ]*>)?\\s*${functionName}\\s*\\(`), // java methods with generics
         new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
         new RegExp(`\\b(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python failed lambda
 

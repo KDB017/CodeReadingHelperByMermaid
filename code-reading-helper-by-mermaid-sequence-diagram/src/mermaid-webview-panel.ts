@@ -71,7 +71,9 @@ export class MermaidWebviewPanel {
       'mermaidPreview',
       'Mermaid Preview',
       ViewColumn.Beside,
-      { enableScripts: true }
+      { enableScripts: true,
+        localResourceRoots: [Uri.joinPath(extensionUri, 'media')]
+       }
     );
 
     MermaidWebviewPanel.currentPanel = new MermaidWebviewPanel(panel, document, extensionUri);

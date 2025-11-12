@@ -161,9 +161,7 @@ export class MermaidWebviewPanel {
   private async jumpToFunction(functionName: string): Promise<void> {
     console.log('=== jumpToFunction DEBUG ===');
     console.log('🔍 Searching for function:', `"${functionName}"`);
-    console.log('🔍 Function name length:', functionName.length);
-    console.log('🔍 Function name char codes:', functionName.split('').map(c => c.charCodeAt(0)));
-    
+
     // Search for the function definition in all target files in the workspace
     const files = await workspace.findFiles('**/*.{py,ts,java,js}');
     
@@ -174,22 +172,18 @@ export class MermaidWebviewPanel {
       return;
     }
 
-    // from limited area to wide area
-    const patterns = [
-      // More specific patterns first
-  // Allow any number of modifiers or annotations in any order before the method name.
-  // - annotations like @Override or @com.example.Annotation(param)
-  // - modifiers like public, static, final, native, etc.
-  // The whole (modifier|annotation + whitespace) sequence can repeat zero or more times.
-  new RegExp(`\\b(?:(?:(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*${functionName}\\s*\\(`), // java methods with generics
-        new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
-        new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
-        new RegExp(`\\b(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python failed lambda
+  const patterns = [
 
-      // new RegExp(`\\b(?:const|let|var)\\s+${functionName}\\s*=\\s*(?:<[^>]+>\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
-      // new RegExp(`\\b(const|let|var)\\s+${functionName}\\s*=\\s*((([a-zA-Z]*\\s)?)|[a-zA-Z]*)\\s*=>\\s*\\(\\()?`),      // JavaScript method
-      new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
-      new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
+    new RegExp(
+    // $methodA failed other is ok 2025/11/11
+  `^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`,'m'),
+  new RegExp(`\\b(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python failed lambda
+    // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
+        // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
+      //   new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
+      //   new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
+      // new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
+      // new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
 
     ];
     

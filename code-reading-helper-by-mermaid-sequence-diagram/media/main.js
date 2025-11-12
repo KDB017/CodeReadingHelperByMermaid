@@ -1,3 +1,7 @@
+
+/**
+ * this script handles the rendering and interactivity of the Mermaid diagram
+ */
 const vscode = acquireVsCodeApi();
 // get DOM elements
 const diagramContainer = document.getElementById('diagram-container');
@@ -21,7 +25,7 @@ function initializePanzoom() {
     }
 
     panzoomInstance = Panzoom(mermaidDiagram, {
-        maxScale: 5,
+        maxScale: 10,
         minScale: 0.1,
         contain: 'outside',
         disablePan: !isPanEnabled,
@@ -75,12 +79,12 @@ mermaid.run({
         elements.forEach(element => {
             // console.log(element);
             const raw = element.textContent;
-            const colonIndex = raw.indexOf(":");
-            let fn = raw.substring(colonIndex + 1);  // Remove leading numbers like "1:", "2.1:" etc.
-            console.log("raw:", raw);
-            console.log("colonIndex:", colonIndex);
-            console.log("fn before processing:", fn);
-            fn = fn.substring(0, fn.indexOf("("));
+            // const colonIndex = raw.indexOf(":");
+            // let fn = raw.substring(colonIndex + 1);  // Remove leading numbers like "1:", "2.1:" etc.
+            // console.log("raw:", raw);
+            // console.log("colonIndex:", colonIndex);
+            // console.log("fn before processing:", fn);
+            let fn = raw.substring(0, raw.indexOf("("));
             fn = fn.trim();
             counts[fn] = (counts[fn] || 0) + 1;
             console.log("抽出:", raw, "→", fn, counts[fn]);
@@ -88,31 +92,32 @@ mermaid.run({
 
         elements.forEach(element => {
             const raw = element.textContent;
-            const colonIndex = raw.indexOf(":");
-            let fn = raw.substring(colonIndex + 1);
-            fn = fn.substring(0, fn.indexOf("("));
+            // const colonIndex = raw.indexOf(":");
+            // let fn = raw.substring(colonIndex + 1);
+            let fn = raw.substring(0, raw.indexOf("("));
             fn = fn.trim();
             if (!fn) return;
             if (fn === "") {
                 return;
             }
             if (counts[fn] >= 5) {
-            element.style.fill = "orange";
-        }
-        if (counts[fn] >= 10) {
-    element.style.fill = "red";
-}
-element.classList.add('clickable');
-element.addEventListener('click', () => {
-    vscode.postMessage({
-        command: 'jumpToFunction',
-        functionName: fn
-    });
-});
+                element.style.fill = "orange";
+            }
+            if (counts[fn] >= 10) {
+                element.style.fill = "red";
+            }
+            console.log('ジャンプする前のfn: '+fn)
+            element.classList.add('clickable');
+            element.addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'jumpToFunction',
+                    functionName: fn
+                });
             });
-
-// Mermaid rendering complete, initialize Panzoom
-initializePanzoom();
-setupButtons();
-          }
         });
+
+        // Mermaid rendering complete, initialize Panzoom
+        initializePanzoom();
+        setupButtons();
+    }
+});

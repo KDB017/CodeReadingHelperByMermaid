@@ -1,4 +1,4 @@
-import {WebviewPanel,TextDocument,Disposable,window,ViewColumn,workspace,TextDocumentShowOptions,Range,Uri}  from 'vscode';
+import { WebviewPanel, TextDocument, Disposable, window, ViewColumn, workspace, TextDocumentShowOptions, Range, Uri } from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
@@ -71,9 +71,10 @@ export class MermaidWebviewPanel {
       'mermaidPreview',
       'Mermaid Preview',
       ViewColumn.Beside,
-      { enableScripts: true,
+      {
+        enableScripts: true,
         localResourceRoots: [Uri.joinPath(extensionUri, 'media')]
-       }
+      }
     );
 
     MermaidWebviewPanel.currentPanel = new MermaidWebviewPanel(panel, document, extensionUri);
@@ -138,11 +139,12 @@ export class MermaidWebviewPanel {
 
     this.panel.webview.onDidReceiveMessage(
       (message) => {
-        
+
         switch (message.command) {
           case "jumpToFunction":
             const functionName = message.functionName;
-            this.jumpToFunction(functionName);
+            const nearestParticipant = message.nearestParticipant;
+            this.jumpToFunction(functionName, nearestParticipant);
             break;
         }
       }, this.disposables);
@@ -158,59 +160,69 @@ export class MermaidWebviewPanel {
     * Jumps to the specified function in the codebase.
     * @param functionName - The name of the function to jump to.
     */
-  private async jumpToFunction(functionName: string): Promise<void> {
+  private async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
     console.log('=== jumpToFunction DEBUG ===');
     console.log('🔍 Searching for function:', `"${functionName}"`);
+    console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
+
+    // Escape special regex characters in functionName
+    const safeFuncName = this.escapeRegExp(functionName);
+    console.log('🔍 Escaped function name for regex:', `"${safeFuncName}"`);
+
 
     // Search for the function definition in all target files in the workspace
     const files = await workspace.findFiles('**/*.{py,ts,java,js}');
-    
-    console.log('📁 Total files found:', files.length);
-    
+
+    // console.log('📁 Total files found:', files.length);
+
     if (files.length === 0) {
       window.showErrorMessage('target files not found');
       return;
     }
 
-  const patterns = [
-
-    new RegExp(
-    // $methodA failed other is ok 2025/11/11
-  `^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`,'m'),
-  new RegExp(`\\b(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python failed lambda
-    // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
-        // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
+    const patterns = [
+      //TypeScript
+      new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm')
+      
+      // JavaScript,exclude $,[],*  is ok J
+    
+      // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
+      // $methodA failed, other is ok 2025/11/11
+      // new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), //java
+      // new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${functionName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python
+      // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
+      // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
       //   new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
       //   new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
       // new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
       // new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
 
     ];
-    
-    console.log('Search patterns:');
+
+    // console.log('Search patterns:');
     patterns.forEach((pattern, index) => {
-      console.log(`  ${index + 1}. ${pattern.source}`);
+      // console.log(`  ${index + 1}. ${pattern.source}`);
     });
 
     for (const pattern of patterns) {
       for (const file of files) {
         try {
-        const document = await workspace.openTextDocument(file);
-        const text = document.getText();
-        console.log(`📖 File content length: ${text.length} characters`);
-        const match = pattern.exec(text);
+          const document = await workspace.openTextDocument(file);
+          const text = document.getText();
+          // console.log(`📖 File content length: ${text.length} characters`);
+          const match = pattern.exec(text);
           if (match) {
-            console.log('✅ MATCH FOUND!');
-            console.log(`📍 Pattern: ${pattern.source}`);
-            console.log(`📍 Match details:`, {
-              fullMatch: match[0],
-              index: match.index,
-              groups: match.slice(1)
-            });
+            // console.log('✅ MATCH FOUND!');
+            // console.log(`📍 Pattern: ${pattern.source}`);
+            // console.log(`📍 Match details:`, {
+            //   fullMatch: match[0],
+            //   index: match.index,
+            //   groups: match.slice(1)
+            // });
             window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
             const pos = document.positionAt(match.index);
 
-            const documentOptions:TextDocumentShowOptions={
+            const documentOptions: TextDocumentShowOptions = {
               selection: new Range(pos, pos),
               viewColumn: ViewColumn.One,
             };
@@ -220,20 +232,25 @@ export class MermaidWebviewPanel {
             return;
           }
           else {
-            console.log('❌ No match for this pattern');
+            // console.log('❌ No match for this pattern');
           }
         } catch (error: any) {
           console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
-          }
-
-          console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
         }
+
+        // console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
+      }
     }
 
     // if no function was found in any file
-    console.log('❌ Function not found in any file');
-    window.showInformationMessage(`❌ ${functionName} was not found`);
+    // console.log('❌ Function not found in any file');
+    // window.showInformationMessage(`❌ ${functionName} was not found`);
   }
+
+  private escapeRegExp(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 
   /**
               // escape functionName for safe regex interpolation
@@ -242,7 +259,7 @@ export class MermaidWebviewPanel {
    * Gets the current MermaidWebviewPanel instance.
    * @returns MermaidWebviewPanel current panel instance
    */
-  public static getCurrentPanel():MermaidWebviewPanel | undefined {
+  public static getCurrentPanel(): MermaidWebviewPanel | undefined {
     return MermaidWebviewPanel.currentPanel;
   }
 
@@ -251,7 +268,7 @@ export class MermaidWebviewPanel {
                 new RegExp(`\\b(export\\s+)?function\\s+${escapedName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
                 new RegExp(`\\b${escapedName}\\s*\\(`),      // JavaScript method
    */
-  public static getDocument():TextDocument | undefined {
+  public static getDocument(): TextDocument | undefined {
     return MermaidWebviewPanel.currentPanel?.document;
   }
 
@@ -260,7 +277,7 @@ export class MermaidWebviewPanel {
    * Gets the current document.
    * @returns current document
    */
-  public testUpdate():void {
+  public testUpdate(): void {
     MermaidWebviewPanel.currentPanel?.update();
   }
 
@@ -268,14 +285,14 @@ export class MermaidWebviewPanel {
    * this method is for test
    * view disposables after event. 
    */
-  public testsetupListener(): void{
+  public testsetupListener(): void {
     console.log(this.disposables);
   }
-   /**
-   * this method is for test
-   * view disposables after event. 
-   */
-  public testGetWebview(): WebviewPanel{
+  /**
+  * this method is for test
+  * view disposables after event. 
+  */
+  public testGetWebview(): WebviewPanel {
     return this.panel;
   }
 

@@ -182,9 +182,9 @@ export class MermaidWebviewPanel {
 
     const patterns = [
       //TypeScript
-      new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm')
+      new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm') //JavaScript
       
-      // JavaScript,exclude $,[],*  is ok J
+      // JavaScript,exclude $,[],*  is ok Jd
     
       // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
       // $methodA failed, other is ok 2025/11/11
@@ -200,9 +200,6 @@ export class MermaidWebviewPanel {
     ];
 
     // console.log('Search patterns:');
-    patterns.forEach((pattern, index) => {
-      // console.log(`  ${index + 1}. ${pattern.source}`);
-    });
 
     for (const pattern of patterns) {
       for (const file of files) {
@@ -247,14 +244,17 @@ export class MermaidWebviewPanel {
     // window.showInformationMessage(`❌ ${functionName} was not found`);
   }
 
-  private escapeRegExp(str: string) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  /**
+   * meta characters is escaped
+   * @param aString
+   * @returns escaped string
+   */
+  private escapeRegExp(aString: string) {
+  return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 
   /**
-              // escape functionName for safe regex interpolation
-              const escapedName = functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
    * this method is for test
    * Gets the current MermaidWebviewPanel instance.
    * @returns MermaidWebviewPanel current panel instance
@@ -285,7 +285,7 @@ export class MermaidWebviewPanel {
    * this method is for test
    * view disposables after event. 
    */
-  public testsetupListener(): void {
+  public testsSetupListener(): void {
     console.log(this.disposables);
   }
   /**

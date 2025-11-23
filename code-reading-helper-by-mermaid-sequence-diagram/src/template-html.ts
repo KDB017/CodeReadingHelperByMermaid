@@ -12,8 +12,11 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
   const styleResetPath = Uri.joinPath(extensionUri, 'media', 'mermaid.css');
   const stylesResetUri = panel.webview.asWebviewUri(styleResetPath);
 
-  const scriptPathOnDisk = Uri.joinPath(extensionUri, 'media', 'main.js');
-  const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk);
+  let scriptPathOnDisk = Uri.joinPath(extensionUri, 'media', 'main.js');
+  const mainScriptUri = panel.webview.asWebviewUri(scriptPathOnDisk);
+
+  scriptPathOnDisk = Uri.joinPath(extensionUri, 'media', 'dom-util.js');
+  const domUtilScriptUri = panel.webview.asWebviewUri(scriptPathOnDisk);
 
   const nonce = getNonce();
 
@@ -52,11 +55,16 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
           <div class="mermaid" id="mermaid-diagram">${code}</div>
         </div>
       </div>
-      <script nonce="${nonce}" src="${scriptUri}"></script>
+      <script nonce="${nonce}" src="${domUtilScriptUri}"></script>
+      <script nonce="${nonce}" src="${mainScriptUri}"></script>
     </body>
     </html>`;
 }
 
+/**
+ * 
+ * @returns string
+ */
 function getNonce(): string {
 	let text = '';
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

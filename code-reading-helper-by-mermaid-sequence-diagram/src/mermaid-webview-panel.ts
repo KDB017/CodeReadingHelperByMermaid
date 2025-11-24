@@ -154,7 +154,7 @@ export class MermaidWebviewPanel {
     }, null, this.disposables);
   }
 
-private async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
+  private async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
     console.log('=== jumpToFunction DEBUG ===');
     console.log('🔍 Searching for function:', `"${functionName}"`);
     console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
@@ -163,9 +163,18 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
     const safeFuncName = this.escapeRegExp(functionName);
     console.log('🔍 Escaped function name for regex:', `"${safeFuncName}"`);
 
+    const files = await this.findClassOrFilenameInParticipant(nearestParticipant);
+
+    console.log('🔍 Scoped search files (thenable):', files);
+    if (Array.isArray(files)) {
+      console.log('🔍 Files to be searched (scoped):');
+      for (const f of files) {
+        console.log('   -', f.fsPath);
+      }
+    }
 
     // Search for the function definition in all target files in the workspace
-    const files = await workspace.findFiles('**/*.{py,ts,java,js}');
+    // const files = await workspace.findFiles('**/*.{py,ts,java,js}');
 
     // console.log('📁 Total files found:', files.length);
 
@@ -177,13 +186,13 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
     const patterns = [
       //TypeScript
       // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm') //JavaScript
-      
+
       // JavaScript,exclude $,[],*  is ok Jd
-    
+
       // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
       // $methodA failed, other is ok 2025/11/11
-      // new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), //java
-      new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`, 'm'),               // Python
+      new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), //java
+      // new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`, 'm'),               // Python
       // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
       // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
       //   new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
@@ -253,7 +262,7 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
 
 
   //   // const scopedFilesThenable = await this.findClassOrFilenameInParticipant(nearestParticipant);
-  
+
   //   // console.log('🔍 Scoped search files (thenable):', scopedFilesThenable);
   //   // Determine which files to search: prefer scoped files when available
   //   // if (Array.isArray(scopedFilesThenable)) {
@@ -285,7 +294,7 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
   //     // new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
 
   //   ];
-    
+
 
   //   // console.log('Search patterns:');
 
@@ -294,7 +303,7 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
   //       try {
   //         // console.log('file:' , file)
   //         const document = await workspace.openTextDocument(file);
-  
+
   //         const text = document.getText();
   //         // console.log(`📖 File content length: ${text.length} characters`);
   //         // Quick preview and literal containment check (debug)
@@ -338,7 +347,7 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
    * @param nearestPar icipant 
    * @returns failes included Participant name 
    */
-  private findClassOrFilenameInParticipant(nearestParticipant: string): Thenable<Uri[]>{
+  private findClassOrFilenameInParticipant(nearestParticipant: string): Thenable<Uri[]> {
 
     console.log('=== findClassOrFilenameInParticipant DEBUG ===');
     console.log('🔍 Nearest participant for scoping:', `"${nearestParticipant}"`);
@@ -359,10 +368,12 @@ private async jumpToFunction(functionName: string, nearestParticipant: string): 
       const matched: Uri[] = [];
       try {
         const candidates = await workspace.findFiles(includePattern);
+        console.log('🔍 Candidate files count for content search:', candidates.length);
         for (const candidate of candidates) {
           try {
             const doc = await workspace.openTextDocument(candidate);
             if (doc.getText().includes(targetName)) {
+              console.log('✅ Content match found in file:', candidate.fsPath);
               matched.push(candidate);
             }
           } catch (e) {

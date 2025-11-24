@@ -69,25 +69,24 @@ function getActorElements(aDocument){
  */
 function getNearestParticipantName(aDocument, aTextElement){
     if (!aTextElement) return null;
-    
+    console.log("aTextElement",aTextElement);
     const actorElements = getActorElements(aDocument);
+    console.log("actorElements",actorElements);
     if (actorElements.length === 0) return null;
 
     const anArrowElementNearThisTextMessage=findArrowForMessage(aTextElement);
+    console.log("anArrowElementNearThisTextMessage",anArrowElementNearThisTextMessage);
     if(!anArrowElementNearThisTextMessage)return null;
     
     const endCoordinateOfArrowInArrowElement=getEndCoordinateOfArrowInArrowElement(anArrowElementNearThisTextMessage);
+    console.log("endCoordinateOfArrowInArrowElement",endCoordinateOfArrowInArrowElement);
     if(!endCoordinateOfArrowInArrowElement)return;
-
-    // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    // console.log("actorElements",actorElements);
-    // console.log("endCoordinate",endCoordinateOfArrowInArrowElement)
     const nearActorForEndCoordinateOfArrowInArrowElement=getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements,endCoordinateOfArrowInArrowElement);
-    // console.log("nearActorForEndCoordinateOfArrowInArrowElement",nearActorForEndCoordinateOfArrowInArrowElement);
+    console.log("nearActorForEndCoordinateOfArrowInArrowElement",nearActorForEndCoordinateOfArrowInArrowElement);
     if(!nearActorForEndCoordinateOfArrowInArrowElement)return null;
 
     const participantName=getParticipantTspanClass(nearActorForEndCoordinateOfArrowInArrowElement);
-    // console.log("participantName",participantName);
+    console.log("participantName",participantName);
     return participantName;
 }
 
@@ -101,14 +100,25 @@ function getParticipantTspanClass(participantElement){
     // console.log("participantElement:", participantElement);
     const tspans=participantElement.querySelectorAll('tspan');
     console.log("tspans:", tspans);
-    const fullClassName=tspans[1];
+    if (tspans.length === 0) {
+        return null;
+    }
+    if (tspans.length == 1) {
+        console.log("single tspan:", tspans[0].textContent);
+        return tspans[0].textContent.trim();
+    }
+    const fullClassName=tspans[-1];
     console.log("fullClassName:", fullClassName);
     if(!fullClassName)return null;
     let tspanText=fullClassName.textContent;
     if(!tspanText)return null;
     tspanText=tspanText.trim();
-    const classOrFilename=(tspanText.split('/'))[1]
-    return classOrFilename;
+    const slashSplitString=(tspanText.split('/'));
+    if (slashSplitString.length > 1) {
+        const classOrFilename = slashSplitString[1].trim();
+        return classOrFilename;
+    }
+    return slashSplitString[0].trim();
 
 
  

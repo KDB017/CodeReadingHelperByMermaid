@@ -93,7 +93,7 @@ function getNearestParticipantName(aDocument, aTextElement){
 /**
  * Extract the class name (or text) from a participant element's tspan.
  * Prefers tspan whose content starts with ':' and returns its class (or trimmed text if no class).
- * @param {Element} participantEl
+ * @param {Element} participantElement
  * @returns {string|null}
  */
 function getParticipantTspanClass(participantElement){
@@ -107,7 +107,7 @@ function getParticipantTspanClass(participantElement){
         console.log("single tspan:", tspans[0].textContent);
         return tspans[0].textContent.trim();
     }
-    const fullClassName=tspans[-1];
+    const fullClassName=tspans[tspans.length - 1];
     console.log("fullClassName:", fullClassName);
     if(!fullClassName)return null;
     let tspanText=fullClassName.textContent;

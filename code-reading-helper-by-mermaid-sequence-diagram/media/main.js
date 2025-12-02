@@ -1,6 +1,7 @@
 
 /**
  * this script handles the rendering and interactivity of the Mermaid diagram
+ * @author Kazuki Nakata(KDB017)
  */
 const vscode = acquireVsCodeApi();
 // get DOM elements

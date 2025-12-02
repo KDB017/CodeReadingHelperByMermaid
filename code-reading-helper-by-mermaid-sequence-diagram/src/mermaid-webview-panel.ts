@@ -191,14 +191,10 @@ export class MermaidWebviewPanel {
 
       // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
       // $methodA failed, other is ok 2025/11/11
-      new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), //java
-      // new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`, 'm'),               // Python
-      // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
-      // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
-      //   new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
-      //   new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
-      // new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
-      // new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
+      //java
+      new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), 
+      // Python
+      new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`, 'm'),               
 
     ];
 
@@ -246,101 +242,6 @@ export class MermaidWebviewPanel {
     console.log('❌ Function not found in any file');
     window.showInformationMessage(`❌ ${functionName} was not found`);
   }
-
-  /**
-    * Jumps to the specified function in the codebase.
-    * @param functionName - The name of the function to jump to.
-    */
-  // private async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
-  //   console.log('=== jumpToFunction DEBUG ===');
-  //   console.log('🔍 Searching for function:', `"${functionName}"`);
-  //   console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
-
-  //   // Escape special regex characters in functionName
-  //   const safeFuncName = this.escapeRegExp(functionName);
-  //   console.log('🔍 Escaped function name for regex:', `"${safeFuncName}"`);
-
-
-  //   // const scopedFilesThenable = await this.findClassOrFilenameInParticipant(nearestParticipant);
-
-  //   // console.log('🔍 Scoped search files (thenable):', scopedFilesThenable);
-  //   // Determine which files to search: prefer scoped files when available
-  //   // if (Array.isArray(scopedFilesThenable)) {
-  //   //   console.log('🔍 Files to be searched (scoped):');
-  //   //   for (const f of scopedFilesThenable) {
-  //   //     console.log('   -', f.fsPath);
-  //   //   }
-  //   // }
-  //   const files = await workspace.findFiles('**/*.{py,ts,java,js}');
-  //   if (files.length === 0) {
-  //     window.showErrorMessage('target files not found');
-  //     return;
-  //   }
-
-  //   const patterns = [
-  //     new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`),               // Python
-  //     // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm'),//JavaScript
-
-  //     // JavaScript,exclude $,[],*  is ok Jd
-
-  //     // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
-  //     // $methodA failed, other is ok 2025/11/11
-  //     // new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'), //java
-  //     // new RegExp(`^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|private|protected|abstract|static|final|synchronized|native|strictfp)\\s+)*(?:[<>,A-Za-z0-9_\\[\\].<>\\?@,\\s]+\\s+)?${functionName}\\s*\\(`, 'm'), // java methods with generics
-  //     // new RegExp(`\\b^\\s*(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:(?:@[A-Za-z_1-9?$][\\w\\.]*?(?:\\([^)]*\\))?)|(?:public|private|protected|abstract|static|final|synchronized|native|strictfp))\\s+)*[A-Z]([A-Za-z<> ,.@_1-9?$])${functionName}\\s*\\(`), // java methods with generics
-  //     //   new RegExp(`\\b(public|private|protected)\\s+(static\\s+)?${functionName}\\s*(<[a-zA-Z, ]*>)?\\s*\\(`), // TypeScript methods with generics
-  //     //   new RegExp(`\\b(const|var|let)?\\s+${functionName}\\s*=\\s*function\\s*\\(`),       // JavaScript function expression
-  //     // new RegExp(`\\b(export\\s+)?function\\s+${functionName}[\\s\\S]*?\\(`),    // TypeScript/JavaScript normal function with generics
-  //     // new RegExp(`\\b${functionName}\\s*\\(`),      // JavaScript method
-
-  //   ];
-
-
-  //   // console.log('Search patterns:');
-
-  //   for (const pattern of patterns) {
-  //     for (const file of files) {
-  //       try {
-  //         // console.log('file:' , file)
-  //         const document = await workspace.openTextDocument(file);
-
-  //         const text = document.getText();
-  //         // console.log(`📖 File content length: ${text.length} characters`);
-  //         // Quick preview and literal containment check (debug)
-
-  //         const match = pattern.exec(text);
-  //         if (match) {
-  //           // console.log('✅ MATCH FOUND!');
-  //           // console.log(`📍 Pattern: ${pattern.source}`);
-  //           // console.log(`📍 Match details:`, {
-  //           //   fullMatch: match[0],
-  //           //   index: match.index,
-  //           //   groups: match.slice(1)
-  //           // });
-  //           window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
-  //           const pos = document.positionAt(match.index);
-
-  //           const documentOptions: TextDocumentShowOptions = {
-  //             selection: new Range(pos, pos),
-  //             viewColumn: ViewColumn.One,
-  //           };
-  //           // Found file is opened in a mmd file
-  //           await window.showTextDocument(document, documentOptions);
-  //           console.log('✅ Jump completed successfully');
-  //           return;
-  //         }
-  //       } catch (error: any) {
-  //         console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
-  //       }
-
-  //       // console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
-  //     }
-  //   }
-
-  //   // if no function was found in any file
-  //   console.log('❌ Function not found in any file');
-  //   window.showInformationMessage(`❌ ${functionName} was not found`);
-  // }
 
   /**
    *  Narrow the scope of search based on nearest participant

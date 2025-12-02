@@ -29,6 +29,7 @@ Mermaid example:
 ```mermaid
 sequenceDiagram
   Alice->>Bob: processOrder()
+```
 
 
 🚀 Usage

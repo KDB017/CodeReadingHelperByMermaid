@@ -12,17 +12,17 @@
  * @param {Element} anElement  textElement
  * @returns {Element|null}
  */
-function findArrowForMessage(anElement){
-    const textElement=anElement;
+function findArrowForMessage(anElement) {
+    const textElement = anElement;
 
-    const findArrowElement=textElement.nextElementSibling;
-    if(!findArrowElement ){
+    const findArrowElement = textElement.nextElementSibling;
+    if (!findArrowElement) {
         return null;
     }
 
-    const className=findArrowElement.getAttribute('class');
+    const className = findArrowElement.getAttribute('class');
 
-    if (className.includes('messageLine')){
+    if (className.includes('messageLine')) {
         // console.log(findArrowElement)
         return findArrowElement;
     }
@@ -40,10 +40,10 @@ function findArrowForMessage(anElement){
  * @param {SVGElement} anArrowElement - 矢印要素（line要素）
  * @returns {{x: number, y: number}|null} ビューポート座標系の終点座標
  */
-function getEndCoordinateOfArrowInArrowElement(anArrowElement){
+function getEndCoordinateOfArrowInArrowElement(anArrowElement) {
     if (!anArrowElement) return null;
-    
-    
+
+
     if (!anArrowElement) return null;
     const aRectangle = anArrowElement.getBoundingClientRect();           // ←ブラウザ表示位置
     const x1 = parseFloat(anArrowElement.getAttribute('x1') || '0');
@@ -53,10 +53,18 @@ function getEndCoordinateOfArrowInArrowElement(anArrowElement){
     return { x: endX, y: endY };
 }
 
-function getActorElements(aDocument){
+function getActorElements(aDocument) {
     const roots = Array.from(aDocument.querySelectorAll('g[id^="root-"]'));
-    return roots
-      
+    // Filter out non-actor groups. Actor groups in Mermaid contain either a rect with class 'actor' or a text with class 'actor-box'.
+    const actorRoots = roots.filter(root => {
+        try {
+            return !!(root.querySelector('rect.actor') || root.querySelector('rect.actor-top') || root.querySelector('text.actor-box') || root.querySelector('.actor'));
+        } catch (e) {
+            return false;
+        }
+    });
+    return actorRoots;
+
 }
 
 
@@ -67,26 +75,26 @@ function getActorElements(aDocument){
  * @param {{x: number, y: number}} theArrowEndCoordinate - 矢印の終点座標（ビューポート座標系）
  * @returns {string|null} 最も近い参加者の名前、見つからない場合はnull
  */
-function getNearestParticipantName(aDocument, aTextElement){
+function getNearestParticipantName(aDocument, aTextElement) {
     if (!aTextElement) return null;
-    console.log("aTextElement",aTextElement);
+    console.log("aTextElement", aTextElement);
     const actorElements = getActorElements(aDocument);
-    console.log("actorElements",actorElements);
+    console.log("actorElements", actorElements);
     if (actorElements.length === 0) return null;
 
-    const anArrowElementNearThisTextMessage=findArrowForMessage(aTextElement);
-    console.log("anArrowElementNearThisTextMessage",anArrowElementNearThisTextMessage);
-    if(!anArrowElementNearThisTextMessage)return null;
-    
-    const endCoordinateOfArrowInArrowElement=getEndCoordinateOfArrowInArrowElement(anArrowElementNearThisTextMessage);
-    console.log("endCoordinateOfArrowInArrowElement",endCoordinateOfArrowInArrowElement);
-    if(!endCoordinateOfArrowInArrowElement)return;
-    const nearActorForEndCoordinateOfArrowInArrowElement=getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements,endCoordinateOfArrowInArrowElement);
-    console.log("nearActorForEndCoordinateOfArrowInArrowElement",nearActorForEndCoordinateOfArrowInArrowElement);
-    if(!nearActorForEndCoordinateOfArrowInArrowElement)return null;
+    const anArrowElementNearThisTextMessage = findArrowForMessage(aTextElement);
+    console.log("anArrowElementNearThisTextMessage", anArrowElementNearThisTextMessage);
+    if (!anArrowElementNearThisTextMessage) return null;
 
-    const participantName=getParticipantTspanClass(nearActorForEndCoordinateOfArrowInArrowElement);
-    console.log("participantName",participantName);
+    const endCoordinateOfArrowInArrowElement = getEndCoordinateOfArrowInArrowElement(anArrowElementNearThisTextMessage);
+    console.log("endCoordinateOfArrowInArrowElement", endCoordinateOfArrowInArrowElement);
+    if (!endCoordinateOfArrowInArrowElement) return;
+    const nearActorForEndCoordinateOfArrowInArrowElement = getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements, endCoordinateOfArrowInArrowElement);
+    console.log("nearActorForEndCoordinateOfArrowInArrowElement", nearActorForEndCoordinateOfArrowInArrowElement);
+    if (!nearActorForEndCoordinateOfArrowInArrowElement) return null;
+
+    const participantName = getParticipantTspanClass(nearActorForEndCoordinateOfArrowInArrowElement);
+    console.log("participantName", participantName);
     return participantName;
 }
 
@@ -96,58 +104,63 @@ function getNearestParticipantName(aDocument, aTextElement){
  * @param {Element} participantElement
  * @returns {string|null}
  */
-function getParticipantTspanClass(participantElement){
+function getParticipantTspanClass(participantElement) {
     // console.log("participantElement:", participantElement);
-    const tspans=participantElement.querySelectorAll('tspan');
+    const tspans = participantElement.querySelectorAll('tspan');
     console.log("tspans:", tspans);
     if (tspans.length === 0) {
         return null;
     }
     if (tspans.length == 1) {
-        console.log("single tspan:", tspans[0].textContent);
-        return tspans[0].textContent.trim();
+        const slashSplitString = (tspans[0].textContent.split('/'));
+        const colonIndex = slashSplitString[0].indexOf(":");
+        if (slashSplitString.length ==1)slashSplitString[0].substring(colonIndex,slashSplitString[0].length).trim(); ;
+        const classOrFilename = slashSplitString[slashSplitString.length - 1].trim();
+
+        // console.log("single tspan:", tspans[0].textContent);
+        return classOrFilename;
     }
-    const fullClassName=tspans[tspans.length - 1];
+    const fullClassName = tspans[tspans.length - 1];
     console.log("fullClassName:", fullClassName);
-    if(!fullClassName)return null;
-    let tspanText=fullClassName.textContent;
-    if(!tspanText)return null;
-    tspanText=tspanText.trim();
-    const slashSplitString=(tspanText.split('/'));
+    if (!fullClassName) return null;
+    let tspanText = fullClassName.textContent;
+    if (!tspanText) return null;
+    tspanText = tspanText.trim();
+    const slashSplitString = (tspanText.split('/'));
     if (slashSplitString.length > 1) {
-        const classOrFilename = slashSplitString[1].trim();
+        const classOrFilename = slashSplitString[slashSplitString.length - 1].trim();
         return classOrFilename;
     }
     return slashSplitString[0].trim();
 
 
- 
+
 }
 
-function getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements,endCoordinateOfArrowInArrowElement){
+function getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements, endCoordinateOfArrowInArrowElement) {
     if (!endCoordinateOfArrowInArrowElement || actorElements.length === 0) return null;
-    
-  let nearestActorElement = null;
-  let minDistance = Infinity;
-  actorElements.forEach(actorElement => {
-    const centerCoordinateOfActorElement=getParticipantCenterCoordinate(actorElement)
-    const dx = centerCoordinateOfActorElement.x - endCoordinateOfArrowInArrowElement.x;
-    const dy = centerCoordinateOfActorElement.y - endCoordinateOfArrowInArrowElement.y;
-    const distance = dx * dx + dy * dy;
-    if (distance < minDistance) {
-      minDistance = distance;
-      nearestActorElement = actorElement;
-    }
-  });
-  return nearestActorElement;
-    
+
+    let nearestActorElement = null;
+    let minDistance = Infinity;
+    actorElements.forEach(actorElement => {
+        const centerCoordinateOfActorElement = getParticipantCenterCoordinate(actorElement)
+        const dx = centerCoordinateOfActorElement.x - endCoordinateOfArrowInArrowElement.x;
+        const dy = centerCoordinateOfActorElement.y - endCoordinateOfArrowInArrowElement.y;
+        const distance = dx * dx + dy * dy;
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearestActorElement = actorElement;
+        }
+    });
+    return nearestActorElement;
+
 
 }
-function getParticipantCenterCoordinate(aParticipantElement){
-    const rectBound=aParticipantElement.getBoundingClientRect();
+function getParticipantCenterCoordinate(aParticipantElement) {
+    const rectBound = aParticipantElement.getBoundingClientRect();
     // console.log(aParticipantElement,rectBound)
-    const x=rectBound.left+rectBound.width/2;
-    const y=rectBound.top+rectBound.height/2;
+    const x = rectBound.left + rectBound.width / 2;
+    const y = rectBound.top + rectBound.height / 2;
     // console.log(x,y);
-    return {x, y};
+    return { x, y };
 }

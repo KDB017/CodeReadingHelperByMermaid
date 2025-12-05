@@ -108,16 +108,13 @@ function getParticipantTspanClass(participantElement) {
     // console.log("participantElement:", participantElement);
     const tspans = participantElement.querySelectorAll('tspan');
     console.log("tspans:", tspans);
+    let classOrFilename=null;
     if (tspans.length === 0) {
-        return null;
+        return classOrFilename;
     }
     if (tspans.length == 1) {
-        const slashSplitString = (tspans[0].textContent.split('/'));
-        const colonIndex = slashSplitString[0].indexOf(":");
-        if (slashSplitString.length ==1)slashSplitString[0].substring(colonIndex,slashSplitString[0].length).trim(); ;
-        const classOrFilename = slashSplitString[slashSplitString.length - 1].trim();
-
-        // console.log("single tspan:", tspans[0].textContent);
+        classOrFilename = tspans[0].textContent.trim();
+        console.log("single tspan:", classOrFilename);
         return classOrFilename;
     }
     const fullClassName = tspans[tspans.length - 1];
@@ -126,12 +123,10 @@ function getParticipantTspanClass(participantElement) {
     let tspanText = fullClassName.textContent;
     if (!tspanText) return null;
     tspanText = tspanText.trim();
-    const slashSplitString = (tspanText.split('/'));
-    if (slashSplitString.length > 1) {
-        const classOrFilename = slashSplitString[slashSplitString.length - 1].trim();
-        return classOrFilename;
-    }
-    return slashSplitString[0].trim();
+    classOrFilename=tspanText.substring(1); // remove leading ':'
+    console.log("tspanText after removing leading ':' :", tspanText);
+    
+    return classOrFilename;
 
 
 

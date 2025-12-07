@@ -19,7 +19,6 @@ export function activate(context: ExtensionContext): void {
         window.showErrorMessage('No active editor');
         return;
       }
-
       MermaidWebviewPanel.show(activeEditor.document, context.extensionUri);
     })
   );

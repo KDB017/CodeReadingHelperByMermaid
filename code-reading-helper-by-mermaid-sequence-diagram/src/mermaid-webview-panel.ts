@@ -51,9 +51,10 @@ export class MermaidWebviewPanel {
     this.panel = panel;
     this.extensionUri = extensionUri;
     this.mermaidModel = new MermaidModel();
-    this.mermaidModel.setDocument(document);
+    this.mermaidModel.update(document);
     this.mermaidModel.setView(this);
     this.controller = new Controller();
+    this.controller.setModel(this.mermaidModel);
     this.update();
     this.setupListeners();
   }

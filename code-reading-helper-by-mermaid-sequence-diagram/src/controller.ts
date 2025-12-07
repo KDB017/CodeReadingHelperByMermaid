@@ -8,7 +8,11 @@ import { ICodeAnalyzer } from "./analyzer/interface/code-analyzer-interface";
  */
 export class Controller {
 
+    /**
+     * The MermaidModel instance associated with this controller.
+     */
     private model: MermaidModel;
+
 
     /**
      * Constructor for the Controller class.
@@ -17,6 +21,10 @@ export class Controller {
         this.model = null!;
     }
 
+    /**
+     * set the model
+     * @param model 
+     */
     public setModel(model: MermaidModel): void {
         this.model = model;
     }
@@ -33,18 +41,9 @@ export class Controller {
         console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
 
         // Escape special regex characters in functionName
-        const safeFuncName = this.escapeRegExp(functionName);
-        console.log('🔍 Escaped function name for regex:', `"${safeFuncName}"`);
 
         const files = await this.findClassOrFilenameInParticipant(nearestParticipant);
-
-        console.log('🔍 Scoped search files (thenable):', files);
-        if (Array.isArray(files)) {
-            console.log('🔍 Files to be searched (scoped):');
-            for (const f of files) {
-                console.log('   -', f.fsPath);
-            }
-        }
+        
         console.log('model programmingLanguageFileExtension:', this.model.getProgrammingLanguagefileExtension());
         // Search for the function definition in all target files in the workspace
         // const files = await workspace.findFiles('**/*.{py,ts,java,js}');
@@ -55,83 +54,15 @@ export class Controller {
             window.showErrorMessage('target files not found');
             return;
         }
-
-        // const patterns = [
-        //     //TypeScript
-        //     // TypeScript: allow optional generics with nested angle-brackets up to depth 2
-        //     // new RegExp(`^([ \\t]*)(?:export\\s+)?(?:(?:public|protected|private|static|async)\\s+)?(?:function\\s+)?${safeFuncName}\\s*(?:<(?:(?:[^<>]|<[^<>]*>){0,2})>)?\\s*\\(`, 'm'),
-        //     // new RegExp(`^([ \\t]*)(?:export\\s+)?((public|protected|private|static|async)\\s+)?(function\\s+)?${safeFuncName}\\s*(?:<[\\s\\S]*?>)?\\s*\\(`, 'm'),
-        //     //JavaScript
-        //     // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${safeFuncName}[ \\t]*\\(`, 'm'),
-
-        //     // JavaScript,exclude $,[],*  is ok Jd
-
-        //     // new RegExp(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${functionName}[ \\t]*\\(`, 'm')s
-        //     // $methodA failed, other is ok 2025/11/11
-        //     //java
-        //     // new RegExp(`^([ \t]*)(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?(?:@[A-Za-z_][\\w\\.]*?(?:\\([^)]*\\))?\\s*)*(?:[A-Za-z_$][\\w.$<>?,\\s@\\[\\]]*?)\\s+${functionName}\\s*\\(`, 'm'),
-        //     // Python
-        //     // new RegExp(`^([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[[A-Za-z0-9_:=,*()\\s]*\\])?\\s*\\(`, 'm'),
-        //     new RegExp(`([ \t]*)(?:async\\s+)?def\\s+${safeFuncName}\\s*(?:\\[.*?\\])?\\s*\\(`, 'm'),
-
-        // ];
-        // for (const pattern of patterns) {
-        //     for (const file of files) {
-        //         try {
-        //             const document = await workspace.openTextDocument(file);
-        //             const text = document.getText();
-        //             // const analyzer: ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(this.model.getProgrammingLanguagefileExtension());
-        //             // console.log(`📖 File content length: ${analyzer} characters`);
-        //             // const searchResult = analyzer.searchFunctionPosition(text, safeFuncName);
-        //             const match = pattern.exec(text);
-
-        //             if (match !== null) {
-        //                 // console.log('✅ MATCH FOUND!');
-        //                 // console.log(`📍 Pattern: ${pattern.source}`);
-        //                 // console.log(`📍 Match details:`, {
-        //                 //   fullMatch: match[0],
-        //                 //   index: match.index,
-        //                 //   groups: match.slice(1)
-        //                 // });
-        //                 // window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
-        //                 const pos = document.positionAt(match.index);
-
-        //                 const documentOptions: TextDocumentShowOptions = {
-        //                     selection: new Range(pos, pos),
-        //                     viewColumn: ViewColumn.One,
-        //                 };
-        //                 // Found file is opened in a mmd file
-        //                 await window.showTextDocument(document, documentOptions);
-        //                 console.log('✅ Jump completed successfully');
-        //                 return;
-        //             }
-        //             else {
-        //                 // console.log('❌ No match for this pattern');
-        //             }
-        //         } catch (error: any) {
-        //             console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
-        //         }
-        //     }
-        //     console.log('❌ Function not found in any file');
-        //     window.showInformationMessage(`❌ ${functionName} was not found`);
-        // }
         for (const file of files) {
             try {
                 const document = await workspace.openTextDocument(file);
                 const text = document.getText();
                 const analyzer: ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(this.model.getProgrammingLanguagefileExtension());
                 console.log(`📖 File content length: ${analyzer} characters`);
-                const searchResult = analyzer.searchFunctionPosition(text, safeFuncName);
+                const searchResult = analyzer.searchFunctionPosition(text, functionName);
 
                 if (searchResult !== null) {
-                    // console.log('✅ MATCH FOUND!');
-                    // console.log(`📍 Pattern: ${pattern.source}`);
-                    // console.log(`📍 Match details:`, {
-                    //   fullMatch: match[0],
-                    //   index: match.index,
-                    //   groups: match.slice(1)
-                    // });
-                    // window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
                     const pos = document.positionAt(searchResult.index);
 
                     const documentOptions: TextDocumentShowOptions = {
@@ -152,51 +83,6 @@ export class Controller {
 
             console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
         }
-
-
-        // console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
-
-
-        // console.log('Search patterns:');
-
-        //     for (const file of files) {
-        //         try {
-        //             const document = await workspace.openTextDocument(file);
-        //             const text = document.getText();
-        //             const analyzer:ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(this.model.getProgrammingLanguagefileExtension());
-        //             console.log(`📖 File content length: ${analyzer} characters`);
-        //             const searchResult=analyzer.searchFunctionPosition(text, safeFuncName);
-
-        //             if (searchResult !== null) {
-        //                 // console.log('✅ MATCH FOUND!');
-        //                 // console.log(`📍 Pattern: ${pattern.source}`);
-        //                 // console.log(`📍 Match details:`, {
-        //                 //   fullMatch: match[0],
-        //                 //   index: match.index,
-        //                 //   groups: match.slice(1)
-        //                 // });
-        //                 // window.showInformationMessage(`✅ ${file.fsPath} find: ${match[0]}`);
-        //                 const pos = document.positionAt(searchResult.index);
-
-        //                 const documentOptions: TextDocumentShowOptions = {
-        //                     selection: new Range(pos, pos),
-        //                     viewColumn: ViewColumn.One,
-        //                 };
-        //                 // Found file is opened in a mmd file
-        //                 await window.showTextDocument(document, documentOptions);
-        //                 console.log('✅ Jump completed successfully');
-        //                 return;
-        //             }
-        //             else {
-        //                 // console.log('❌ No match for this pattern');
-        //             }
-        //         } catch (error: any) {
-        //             console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
-        //         }
-
-        //         // console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
-
-        // }
 
         // if no function was found in any file
         console.log('❌ Function not found in any file');
@@ -251,14 +137,5 @@ export class Controller {
         const result = Array.from(matched).map(fsPath => Uri.file(fsPath));
         console.log('🔍 Final scoped results count:', result.length);
         return result;
-    }
-
-    /**
-     * meta characters is escaped
-     * @param aString
-     * @returns escaped string
-     */
-    private escapeRegExp(aString: string) {
-        return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 }

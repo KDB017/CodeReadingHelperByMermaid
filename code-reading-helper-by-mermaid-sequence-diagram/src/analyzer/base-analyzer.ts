@@ -1,31 +1,49 @@
 import { SearchResult } from "./interface/search-result-interface";
 import { ICodeAnalyzer } from "./interface/code-analyzer-interface";
-import { TextDocument } from "vscode";
-
+/**
+ * this is the base analyzer class
+ */
 export abstract class BaseAnalyzer implements ICodeAnalyzer {
 
-
+    /**
+     * the placeholder for function name in regex pattern
+     */
     protected static readonly FUNCTION_NAME_PLACEHOLDER = "{FUNCTION_NAME}";
 
     constructor() {
     }
 
+    /**
+     * search the position of function definition in the text
+     * @param text 
+     * @param functionName 
+     * @returns 
+     */
     public searchFunctionPosition(text: string, functionName: string): SearchResult | null {
-       // 1. 💡 抽象メソッドを通して、具象クラスからパターン定義を取得する
-        const pattern = this.getSearchRegex(functionName);
+        const escapedFunctionName = this.escapeRegExp(functionName);
+        const pattern = this.getSearchRegex(escapedFunctionName);
         const match = pattern.exec(text);
-        
+
         if (match) {
 
             console.log(`✅ MATCH FOUND for ${functionName} at index ${match.index}`);
-            return { index: match.index }; // SearchResultの定義による
+            return { index: match.index }; 
         }
-        
+
         return null;
     }
 
     /**
-     * @description 具象クラスが、検索対象の関数名に置き換えられる前の静的な正規表現パターンを返す。
+     * meta characters is escaped
+     * @param aString
+     * @returns escaped string
+     */
+    private escapeRegExp(aString: string) {
+        return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * abstract method to get the regex for searching function definition
      * @param functionName - エスケープ済みの検索対象関数名
      */
     protected abstract getSearchRegex(functionName: string): RegExp;

@@ -12,7 +12,6 @@ Just fast, lightweight navigation for code readers.
 - Jump to function/method definitions directly from Mermaid sequence diagrams
 - Works inside Markdown, `.mmd`, and code comments
 - Zero-config, instant response
-- Extremely lightweight (< 100 KB)
 
 ---
 
@@ -24,19 +23,35 @@ Just fast, lightweight navigation for code readers.
 
 ## 🧩 How it Works
 
-Mermaid example:
+### Generate Mermaid Sequence Diagrams
+
+This extension is bundled with **multilangSequence**, which automatically generates Mermaid sequence diagrams from your code:
+
+1. **Open your source code** (Python, TypeScript, Java, or JavaScript)
+2. **Right-click and select "Generate Sequence Diagram"**
+3. A `.mmd` file is created with the sequence diagram
+4. **Use this extension to jump from diagram to code** — click any function name in the diagram to navigate directly to its definition
+
+### Example
 
 ```mermaid
 sequenceDiagram
-  Alice->>Bob: processOrder()
+  participant Example.py
+  participant SampleBody
+  Example.py->>SampleBody: make_body()
+  SampleBody->>SampleBody: initialize()
+```
 
+Click `make_body()` or `initialize()` to jump to the corresponding function in your source code.
 
-🚀 Usage
+---
 
-1 Open a Mermaid diagram (.mmd)
+## 🚀 Usage
 
-2 click MermaidPreviewShow
-
-3 click on a function name to jump to its definition
+1. Right-click your function name in your code → "Generate Sequence Diagram" (via multilangSequence)
+2. A `.mmd` file opens in the editor
+3. Click the **"Show Mermaid Preview"** button in the top-right corner
+4. The Mermaid sequence diagram is displayed in a webview panel
+5. Click any function name in the diagram to jump directly to its definition
 
 That's it.

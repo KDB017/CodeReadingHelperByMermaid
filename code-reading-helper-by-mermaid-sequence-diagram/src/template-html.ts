@@ -34,8 +34,14 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource} 'unsafe-inline'; img-src ${panel.webview.cspSource} https:; script-src 'nonce-${nonce}';">
   <title>Mermaid Preview</title>
   <!-- Add nonce to external scripts so they are allowed by the CSP above -->
-  <script nonce="${nonce}" src="${Constants.MERMAID}"></script>
-  <script nonce="${nonce}" src="${Constants.PANZOOM}"></script>
+  <script nonce="${nonce}" 
+          src="${Constants.CDN.MERMAID.url}" 
+          integrity="${Constants.CDN.MERMAID.integrity}"
+          crossorigin="anonymous"></script>
+  <script nonce="${nonce}" 
+          src="${Constants.CDN.PANZOOM.url}" 
+          integrity="${Constants.CDN.PANZOOM.integrity}"
+          crossorigin="anonymous"></script>
       <link href="${stylesResetUri}" rel="stylesheet">
     </head>
     <body>

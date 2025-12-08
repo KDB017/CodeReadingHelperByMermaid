@@ -1,8 +1,8 @@
-
-import { Uri, workspace, window, ViewColumn, TextDocumentShowOptions, Range } from "vscode";
+import { Uri, workspace } from "vscode";
 import { AnalyzerFactory } from "./analyzer/analyzer-factory";
 import { MermaidModel } from "./mermaid-model";
 import { ICodeAnalyzer } from "./analyzer/interface/code-analyzer-interface";
+import { MermaidWebviewPanel } from "./mermaid-webview-panel";
 /**
  * Controller class to handle navigation to function definitions in the workspace.
  */
@@ -13,21 +13,35 @@ export class Controller {
      */
     private model: MermaidModel;
 
+    /**
+     * The MermaidWebviewPanel instance associated with this controller.
+     */
+    private view: MermaidWebviewPanel
+
 
     /**
      * Constructor for the Controller class.
      */
-    constructor() {
-        this.model = null!;
+    constructor(model: MermaidModel, view: MermaidWebviewPanel) {
+        this.model = model;
+        this.view = view;
     }
 
-    /**
-     * set the model
-     * @param model 
-     */
-    public setModel(model: MermaidModel): void {
-        this.model = model;
-    }
+    // /**
+    //  * set the model
+    //  * @param model 
+    //  */
+    // public setModel(model: MermaidModel): void {
+    //     this.model = model;
+    // }
+
+    // /**
+    //  * set the view
+    //  * @param view 
+    //  */
+    // public setView(view: MermaidWebviewPanel): void {
+    //     this.view = view;
+    // }
 
     /**
      * jump to function definition in workspace
@@ -36,58 +50,80 @@ export class Controller {
      * @returns 
      */
     public async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
-        console.log('=== jumpToFunction DEBUG ===');
-        console.log('🔍 Searching for function:', `"${functionName}"`);
-        console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
+        try {
+            console.log('=== jumpToFunction DEBUG ===');
+            console.log('🔍 Searching for function:', `"${functionName}"`);
+            console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
 
-        // Escape special regex characters in functionName
-
-        const files = await this.findClassOrFilenameInParticipant(nearestParticipant);
-        
-        console.log('model programmingLanguageFileExtension:', this.model.getProgrammingLanguagefileExtension());
-        // Search for the function definition in all target files in the workspace
-        // const files = await workspace.findFiles('**/*.{py,ts,java,js}');
-
-        // console.log('📁 Total files found:', files.length);
-
-        if (files.length === 0) {
-            window.showErrorMessage('target files not found');
-            return;
-        }
-        for (const file of files) {
-            try {
-                const document = await workspace.openTextDocument(file);
-                const text = document.getText();
-                const analyzer: ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(this.model.getProgrammingLanguagefileExtension());
-                console.log(`📖 File content length: ${analyzer} characters`);
-                const searchResult = analyzer.searchFunctionPosition(text, functionName);
-
-                if (searchResult !== null) {
-                    const pos = document.positionAt(searchResult.index);
-
-                    const documentOptions: TextDocumentShowOptions = {
-                        selection: new Range(pos, pos),
-                        viewColumn: ViewColumn.One,
-                    };
-                    // Found file is opened in a mmd file
-                    await window.showTextDocument(document, documentOptions);
-                    console.log('✅ Jump completed successfully');
-                    return;
-                }
-                else {
-                    // console.log('❌ No match for this pattern');
-                }
-            } catch (error: any) {
-                console.error(`❌ Error reading file ${file.fsPath}:`, error.message);
+            // Validate inputs
+            if (!functionName || functionName.trim() === '') {
+                this.view.showErrorMessage('Function name is empty');
+                return;
             }
 
-            console.log(`📖 Finished checking file: ${file.fsPath} - No matches found`);
+            if (!nearestParticipant || nearestParticipant.trim() === '') {
+                this.view.showErrorMessage('Participant name is empty');
+                return;
+            }
+
+            // Validate file extension
+            const fileExtension = this.model.getProgrammingLanguagefileExtension();
+            console.log('model programmingLanguageFileExtension:', fileExtension);
+
+            if (!fileExtension || fileExtension.trim() === '') {
+                this.view.showErrorMessage(
+                    'Programming language not detected from Mermaid title. ' +
+                    'Ensure format: "Title Sequence diagram of Example.py"'
+                );
+                return;
+            }
+
+            // Verify extension is supported
+            if (!AnalyzerFactory.isSupported(fileExtension)) {
+                this.view.showErrorMessage(
+                    `Unsupported file extension: ${fileExtension}. ` +
+                    'Supported languages: Python (py), Java (java), JavaScript (js, jsx), TypeScript (ts, tsx)'
+                );
+                return;
+            }
+
+            const files = await this.findClassOrFilenameInParticipant(nearestParticipant);
+
+            if (files.length === 0) {
+                this.view.showInformationMessage(`No files found for: ${nearestParticipant}`);
+                return;
+            }
+
+            // Search function in files
+            for (const file of files) {
+                try {
+                    const document = await workspace.openTextDocument(file);
+                    const text = document.getText();
+                    const analyzer: ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(fileExtension);
+                    console.log(`📖 File: ${file.fsPath}`);
+                    const searchResult = analyzer.searchFunctionPosition(text, functionName);
+
+                    if (searchResult !== null) {
+                        const pos = document.positionAt(searchResult.index);
+                        this.view.showFunctionLocation(document, pos);
+                        console.log('✅ Jump completed successfully');
+                        return;
+                    }
+                } catch (fileError: any) {
+                    console.error(`❌ Error processing file ${file.fsPath}:`, fileError.message);
+                    // Continue to next file
+                }
+            }
+
+            // Function not found in any file
+            console.log('❌ Function not found in any file');
+            this.view.showInformationMessage(`Function "${functionName}" was not found in ${nearestParticipant}`);
+
+        } catch (error: any) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error('❌ Fatal error in jumpToFunction:', errorMsg);
+            this.view.showErrorMessage(`Failed to navigate: ${errorMsg}`);
         }
-
-        // if no function was found in any file
-        console.log('❌ Function not found in any file');
-        window.showInformationMessage(`❌ ${functionName} was not found`);
-
     }
 
     /**
@@ -101,41 +137,60 @@ export class Controller {
         console.log('🔍 Nearest participant for scoping:', `"${nearestParticipant}"`);
 
         const targetName = nearestParticipant;
-        const matched = new Set<string>(); // Use Set to avoid duplicates
+
+        // Get the programming language extension from model
+        const fileExtension = this.model.getProgrammingLanguagefileExtension();
+        console.log('🔍 Target file extension:', `"${fileExtension}"`);
 
         // Phase 1: Search by filename (both with and without extension)
         console.log('🔍 Phase 1 - Searching for file:', `"${targetName}"`);
-        try {
-            const filenameMatches = await workspace.findFiles(`**/${targetName}*`);
-            console.log('✅ Phase 1 - Filename matches count:', filenameMatches.length);
-            filenameMatches.forEach(uri => matched.add(uri.fsPath));
-        } catch (e) {
-            console.error('❌ Phase 1 - Error during filename search:', e);
+
+        const filenameMatches = await this.findEqualFileNameInWorkspace(targetName, fileExtension);
+        if (filenameMatches.length > 0) {
+            console.log('✅ Phase 1 - Filename match found:', filenameMatches.map(uri => uri.fsPath));
+            return filenameMatches;
         }
 
         // Phase 2: Search by content (files that contain the targetName)
         console.log('🔍 Phase 2 - Searching for files that contain the participant name in content:', `"${targetName}"`);
-        const includePattern = '**/*.{py,ts,java,js}';
+        const contentMatches = await this.findFilesByFileContent(targetName, fileExtension);
+
+        return contentMatches;
+    }
+
+    private async findEqualFileNameInWorkspace(targetName: string, fileExtension: string): Promise<Uri[]> {
+        const matched = new Set<string>(); // Use Set to avoid duplicates
         try {
-            const candidates = await workspace.findFiles(includePattern);
+            const filenameMatches = await workspace.findFiles(`**/${targetName}*`);
+            // Filter by language extension
+            const languageSpecificMatches = filenameMatches.filter(uri =>
+                uri.fsPath.endsWith(`.${fileExtension}`)
+            );
+            console.log('✅ Phase 1 - Filename matches count (after language filter):', languageSpecificMatches.length);
+            languageSpecificMatches.forEach(uri => matched.add(uri.fsPath));
+        } catch (e) {
+            console.error('❌ Phase 1 - Error during filename search:', e);
+        }
+        return Promise.resolve(Array.from(matched).map(fsPath => Uri.file(fsPath)));
+    }
+
+    private async findFilesByFileContent(targetName: string, fileExtension: string): Promise<Uri[]> {
+        const includePattern = `**/*.${fileExtension}`;
+        try {
+            const candidates = await workspace.findFiles(includePattern,null,200); // 最大50件
+            const results = await Promise.allSettled(candidates.map(uri => workspace.openTextDocument(uri)));
+            const matched = results
+                .map((result, i) =>
+                    result.status === 'fulfilled' && result.value.getText().includes(targetName)
+                        ? candidates[i]
+                        : null
+                )
+                .filter((uri): uri is Uri => uri !== null);
             console.log('🔍 Phase 2 - Candidate files count for content search:', candidates.length);
-            for (const candidate of candidates) {
-                try {
-                    const doc = await workspace.openTextDocument(candidate);
-                    if (doc.getText().includes(targetName)) {
-                        console.log('✅ Phase 2 - Content match found in file:', candidate.fsPath);
-                        matched.add(candidate.fsPath);
-                    }
-                } catch (e) {
-                    // ignore files that can't be opened
-                }
-            }
+            return matched;
         } catch (e) {
             console.error('❌ Phase 2 - Error while enumerating files for content search:', e);
+            return [];
         }
-
-        const result = Array.from(matched).map(fsPath => Uri.file(fsPath));
-        console.log('🔍 Final scoped results count:', result.length);
-        return result;
     }
 }

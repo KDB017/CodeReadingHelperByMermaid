@@ -27,7 +27,7 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
         if (match) {
 
             console.log(`✅ MATCH FOUND for ${functionName} at index ${match.index}`);
-            return { index: match.index }; 
+            return { index: match.index };
         }
 
         return null;
@@ -38,7 +38,7 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
      * @param aString
      * @returns escaped string
      */
-    private escapeRegExp(aString: string) {
+    private escapeRegExp(aString: string) : string {
         return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 

@@ -9,34 +9,40 @@ export class MermaidModel {
     /**
      * The text document containing the Mermaid code.
      */
-    private document: TextDocument
+    private document: TextDocument;
 
     /**
      * The dependent view (MermaidWebviewPanel) that displays the diagram.
      */
-    private dependent: MermaidWebviewPanel
+    private dependent: MermaidWebviewPanel;
 
     /**
      * The programming language extracted from the sequence title.
      */
-    private programmingLanguageFileExtension: string
+    private programmingLanguageFileExtension: string;
+
+    /**
+     *
+     */
+    private static readonly SEQUENCE_DIAGRAM_MARKER = "Title Sequence diagram of";
 
     /**
      * Constructor for MermaidModel
      */
-    constructor() {
-        this.document = null!;
-        this.dependent = null!;
+    constructor(textDocument: TextDocument,view: MermaidWebviewPanel) {
+        this.document = textDocument;
+        this.dependent = view;
         this.programmingLanguageFileExtension = "";
+        this.update(textDocument);
     }
 
-    /**
-     * set the dependent view
-     * @param view The dependent view (MermaidWebviewPanel) that displays the diagram.
-     */
-    public setView(view: MermaidWebviewPanel): void {
-        this.dependent = view;
-    }
+    // /**
+    //  * set the dependent view
+    //  * @param view The dependent view (MermaidWebviewPanel) that displays the diagram.
+    //  */
+    // public setView(view: MermaidWebviewPanel): void {
+    //     this.dependent = view;
+    // }
 
     /**
      * Notify the dependent view that the model has changed.
@@ -83,6 +89,7 @@ export class MermaidModel {
         return this.document.getText();
     }
 
+
     /**
      * 
      * @returns Programming language extracted from the sequence title.
@@ -93,24 +100,32 @@ export class MermaidModel {
 
     /**
      * extract the programming language file extension from the sequence title
-     * @returns Programming language file extension.
+     * Format: "Title Sequence diagram of Example.py"
+     * @returns Programming language file extension, or empty string if not found.
      */
     private extractProgrammingLanguageFileExtensionFromTitle(): string {
         const text = this.getDocumentText();
-        const lines = text.split('\n');
-        let programmingLanguageFileExtension = '';
-        lines.forEach(line => {
-            if (line.includes('Title Sequence diagram of')) {
-                let sequenceTitle = line.trim();
-                const lastDotIndex = sequenceTitle.lastIndexOf('.');
+        
+        for (const line of text.split('\n')) {
+            if (line.includes(MermaidModel.SEQUENCE_DIAGRAM_MARKER)) {
+                // Extract extension after last dot
+                const lastDotIndex = line.lastIndexOf('.');
                 if (lastDotIndex !== -1) {
-                    programmingLanguageFileExtension = sequenceTitle.substring(lastDotIndex + 1).trim();
-                    console.log("extractProgrammingLanguageFileExtensionFromTitle:", programmingLanguageFileExtension);
-
+                    // Get characters after the dot until whitespace or end
+                    const afterDot = line.substring(lastDotIndex + 1);
+                    const fileExtension = afterDot.trim().toLowerCase();
+                    
+                    if (fileExtension.length > 0) {
+                        console.log("extractProgrammingLanguageFileExtensionFromTitle:", fileExtension);
+                        return fileExtension;
+                    }
                 }
             }
-        });
-
-        return programmingLanguageFileExtension;
+        }
+        console.warn(
+            'Unable to extract programming language from Mermaid title. ' +
+            `Expected format: "${MermaidModel.SEQUENCE_DIAGRAM_MARKER} Example.py"`
+        );
+        return '';
     }
 }

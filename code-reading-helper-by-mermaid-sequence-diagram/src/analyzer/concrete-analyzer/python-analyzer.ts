@@ -1,7 +1,7 @@
 
 import { BaseAnalyzer } from "../base-analyzer";
 /**
- * this is the python analyzer class
+ * this is the python analyzer class for RegExp
  */
 export class PythonAnalyzer extends BaseAnalyzer {
 

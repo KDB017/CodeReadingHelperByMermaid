@@ -2,14 +2,14 @@
 import { BaseAnalyzer } from "../base-analyzer";
 
 /**
- * this is the java script analyzer class
+ * this is the java script analyzer class for RegExp 
  */
 export class JavaScriptAnalyzer extends BaseAnalyzer {
 
     /**
      * the regex pattern for searching function definition in javascript
      */
-    public static readonly pattern =`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`;
+    public static readonly pattern =`^([ \\t]*)(?:async\\s+)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*\\(`;
     
     /**
      * the file extensions for javascript files

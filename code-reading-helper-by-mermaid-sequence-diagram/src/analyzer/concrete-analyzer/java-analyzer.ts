@@ -2,7 +2,7 @@
 import { BaseAnalyzer } from "../base-analyzer";
 
 /**
- * this is the java analyzer class
+ * this is the java analyzer class for RegExp
  */
 export class JavaAnalyzer extends BaseAnalyzer {
 

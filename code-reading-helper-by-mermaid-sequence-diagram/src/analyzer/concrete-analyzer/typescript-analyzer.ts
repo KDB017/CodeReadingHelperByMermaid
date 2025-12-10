@@ -2,7 +2,7 @@
 import { BaseAnalyzer } from "../base-analyzer";
 
 /**
- * this is the typescript analyzer class
+ * this is the typescript analyzer class for RegExp
  */
 export class TypeScriptAnalyzer extends BaseAnalyzer {
 
@@ -12,13 +12,7 @@ export class TypeScriptAnalyzer extends BaseAnalyzer {
      * Handles: basic generics, nested generics, complex type constraints, function types, constructor types
      */
     public static readonly pattern = 
-        `^([ \t]*)` +                                                              // line start + indentation
-        `(export\\s+)?` +                                                          // export keyword (optional)
-        `(?:(?:public|protected|private|static|abstract|async)\\s+)*` +           // modifiers (optional, repeatable)
-        `(?:function\\s+)?` +                                                      // function keyword (optional for methods)
-        `${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}` +                              // function/method name
-        `(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?` +                       // generics: handle =>, nested brackets, complex constraints
-        `[ \\t]*\\(`;                                                               // opening parenthesis
+        `^([ \t]*)(export\\s+)?(?:(?:public|protected|private|static|abstract|async)\\s+)*(?:function\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \\t]*\\(`                                                                                                   // opening parenthesis
     
     /**
      * the file extensions for typescript files

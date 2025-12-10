@@ -22,7 +22,7 @@ export class MermaidModel {
     private programmingLanguageFileExtension: string;
 
     /**
-     *
+     * Marker indicating the sequence diagram title line.
      */
     private static readonly SEQUENCE_DIAGRAM_MARKER = "Title Sequence diagram of";
 

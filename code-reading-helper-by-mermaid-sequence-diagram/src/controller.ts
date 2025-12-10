@@ -177,7 +177,8 @@ export class Controller {
     private async findFilesByFileContent(targetName: string, fileExtension: string): Promise<Uri[]> {
         const includePattern = `**/*.${fileExtension}`;
         try {
-            const candidates = await workspace.findFiles(includePattern,null,200); // 最大50件
+            // max 200 files
+            const candidates = await workspace.findFiles(includePattern,null,200); 
             const results = await Promise.allSettled(candidates.map(uri => workspace.openTextDocument(uri)));
             const matched = results
                 .map((result, i) =>

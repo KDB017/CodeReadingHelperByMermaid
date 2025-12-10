@@ -8,9 +8,16 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
     /**
      * the placeholder for function name in regex pattern
      */
-    protected static readonly FUNCTION_NAME_PLACEHOLDER = "{FUNCTION_NAME}";
+    public static readonly FUNCTION_NAME_PLACEHOLDER = "{FUNCTION_NAME}";
 
-    constructor() {
+    /**
+     * the regex pattern for searching function definition
+     */
+    protected pattern: string;
+
+    
+    constructor(pattern: string) {
+        this.pattern = pattern;
     }
 
     /**
@@ -42,10 +49,16 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
         return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    protected  getPattern(): string {
+        return this.pattern;
+    }
+
     /**
      * abstract method to get the regex for searching function definition
      * @param functionName - エスケープ済みの検索対象関数名
      */
     protected abstract getSearchRegex(functionName: string): RegExp;
+
+    
 
 }

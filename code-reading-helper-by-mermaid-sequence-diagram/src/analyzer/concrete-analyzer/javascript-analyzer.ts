@@ -9,14 +9,14 @@ export class JavaScriptAnalyzer extends BaseAnalyzer {
     /**
      * the regex pattern for searching function definition in javascript
      */
-    public static readonly pattern =`^([ \\t]*)(?:async\\s+)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*\\(`;
+    // public static readonly pattern =`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`;
     
     /**
      * the file extensions for javascript files
      */
     public static readonly EXTENSIONS = ["js", "jsx"];
     constructor() {
-        super();
+        super(`^([ \\t]*)(?:async[ \\t]+)?(?:function[ \\t]*\\*?[ \\t]*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`);
     }
 
     /**
@@ -25,7 +25,8 @@ export class JavaScriptAnalyzer extends BaseAnalyzer {
      * @returns 
      */
     public getSearchRegex(functionName: string): RegExp {
-        const javaScriptRegExp = JavaScriptAnalyzer.pattern.replace(
+        const pattern = this.getPattern();
+        const javaScriptRegExp = pattern.replace(
             BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, 
             functionName
         );

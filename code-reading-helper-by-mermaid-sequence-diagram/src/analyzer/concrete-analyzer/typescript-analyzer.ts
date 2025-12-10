@@ -7,19 +7,18 @@ import { BaseAnalyzer } from "../base-analyzer";
 export class TypeScriptAnalyzer extends BaseAnalyzer {
 
     /**
-     * the regex pattern for searching function definition in typescript
-     * Matches: function declarations and class methods only
-     * Handles: basic generics, nested generics, complex type constraints, function types, constructor types
+     * the regex pattern for searching function definition in typescript for RegExp
      */
-    public static readonly pattern = 
-        `^([ \t]*)(export\\s+)?(?:(?:public|protected|private|static|abstract|async)\\s+)*(?:function\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \\t]*\\(`                                                                                                   // opening parenthesis
+    // public static readonly PATTERN = 
+    //     `^([ \t]*)(export\\s+)?(?:(?:public|protected|private|static|abstract|async)\\s+)*(?:function\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \\t]*\\(`                                                                                                   // opening parenthesis
     
     /**
      * the file extensions for typescript files
      */
     public static readonly EXTENSIONS = ["ts", "tsx"];
+
     constructor() {
-        super();
+        super(`^([ \t]*)(export\\s+)?(?:(?:public|protected|private|static|abstract|async)\\s+)*(?:function\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \\t]*\\(`, );
     }
 
     /**
@@ -28,10 +27,13 @@ export class TypeScriptAnalyzer extends BaseAnalyzer {
      * @returns 
      */
     public getSearchRegex(functionName: string): RegExp {
-        const typeScriptRegExp = TypeScriptAnalyzer.pattern.replace(
+        const pattern = this.getPattern();
+        const typeScriptRegExp = pattern.replace(
             BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, 
             functionName
         );
         return new RegExp(typeScriptRegExp, 'm');
     }
+
+    
 }

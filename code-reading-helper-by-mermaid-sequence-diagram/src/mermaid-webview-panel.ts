@@ -1,4 +1,4 @@
-import { WebviewPanel, TextDocument, Disposable, window, ViewColumn, workspace, Uri, TextDocumentShowOptions, Position, Range } from 'vscode';
+import { WebviewPanel, TextDocument, Disposable, window, ViewColumn, workspace, Uri, TextDocumentShowOptions, Position, Range, TextEditorRevealType } from 'vscode';
 
 import { getHtmlForWebview } from './template-html';
 import { debounce } from './debounce';
@@ -52,8 +52,8 @@ export class MermaidWebviewPanel {
   private constructor(panel: WebviewPanel, document: TextDocument, extensionUri: Uri) {
     this.panel = panel;
     this.extensionUri = extensionUri;
-    this.mermaidModel = new MermaidModel(document,this);
-    this.controller = new Controller(this.mermaidModel,this);
+    this.mermaidModel = new MermaidModel(document, this);
+    this.controller = new Controller(this.mermaidModel, this);
     this.update();
     this.setupListeners();
   }
@@ -161,12 +161,16 @@ export class MermaidWebviewPanel {
   }
 
   public async showFunctionLocation(document: TextDocument, pos: Position): Promise<void> {
+    const range = new Range(pos, pos);
     const documentOptions: TextDocumentShowOptions = {
-      selection: new Range(pos, pos),
+      selection: range,
       viewColumn: ViewColumn.One,
       preserveFocus: false,
     };
-    await window.showTextDocument(document, documentOptions);
+    const editor = await window.showTextDocument(document, documentOptions);
+
+    // Reveal the range at the top of the editor
+    editor.revealRange(range,TextEditorRevealType.AtTop);
   }
 
   public showInformationMessage(message: string): void {

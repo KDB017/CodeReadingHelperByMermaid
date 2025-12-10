@@ -8,14 +8,15 @@ export class PythonAnalyzer extends BaseAnalyzer {
     /**
      * the regex pattern for searching function definition in python
      */
-    public static readonly pattern =(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
+    // public static readonly pattern =(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
     
     /**
      * the file extensions for python files
      */
     public static readonly EXTENSIONS = ["py"];
+
     constructor() {
-        super();
+        super(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
     }
 
     /**
@@ -24,7 +25,8 @@ export class PythonAnalyzer extends BaseAnalyzer {
      * @returns 
      */
     public getSearchRegex(functionName: string): RegExp {
-        const pythonRegExp = PythonAnalyzer.pattern.replace(
+        const pattern = this.getPattern();
+        const pythonRegExp = pattern.replace(
             BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, 
             functionName
         );

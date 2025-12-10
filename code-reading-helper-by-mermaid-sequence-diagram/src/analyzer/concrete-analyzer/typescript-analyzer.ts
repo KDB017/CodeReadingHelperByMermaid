@@ -9,14 +9,15 @@ export class TypeScriptAnalyzer extends BaseAnalyzer {
     /**
      * the regex pattern for searching function definition in typescript
      * Matches: function declarations and class methods only
+     * Handles: basic generics, nested generics, complex type constraints, function types, constructor types
      */
     public static readonly pattern = 
-        `^([ \\t]*)` +                                                              // line start + indentation
-        `(?:(?:export|default|public|protected|private|static|async|declare|abstract|readonly|override)[ \\t]+)*` +  // modifiers (optional, repeatable)
-        `(?:function[ \\t]+)?` +                                                    // function keyword (optional for methods)
-        `\\*?[ \\t]*` +                                                             // generator * (optional)
-        `${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}` +                               // function/method name
-        `(?:[ \\t]*<[^>]*>)?` +                                                     // generics <T> (optional, simplified)
+        `^([ \t]*)` +                                                              // line start + indentation
+        `(export\\s+)?` +                                                          // export keyword (optional)
+        `(?:(?:public|protected|private|static|abstract|async)\\s+)*` +           // modifiers (optional, repeatable)
+        `(?:function\\s+)?` +                                                      // function keyword (optional for methods)
+        `${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}` +                              // function/method name
+        `(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?` +                       // generics: handle =>, nested brackets, complex constraints
         `[ \\t]*\\(`;                                                               // opening parenthesis
     
     /**

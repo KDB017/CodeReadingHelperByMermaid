@@ -2,7 +2,7 @@
   "name": "code-reading-helper-by-mermaid-sequence-diagram",
   "displayName": "code-reading-helper-by-mermaid-sequence-diagram",
   "description": "show mermaid sequencediagrams in webview and click to jump function",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "kazu017",
   "engines": {
     "vscode": "^1.105.0"
@@ -78,7 +78,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
+    "lint": "eslint src media",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {

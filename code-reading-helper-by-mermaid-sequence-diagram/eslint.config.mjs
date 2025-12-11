@@ -1,10 +1,12 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import js from "@eslint/js";
 
 export default [
+    // TypeScript files with TypeScript-specific rules
     {
         files: ["src/**/*.ts"],
-        ignores: ["src/test/**/*.ts", "src/**/*.test.ts"], // テストファイルを除外
+        ignores: ["src/test/**/*.ts"],
         plugins: {
             "@typescript-eslint": typescriptEslint,
         },
@@ -43,15 +45,29 @@ export default [
             "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
             "@typescript-eslint/explicit-function-return-type": "warn",
             "@typescript-eslint/no-non-null-assertion": "warn",
-            // 型情報が必要なルールをコメントアウト
-            // "@typescript-eslint/prefer-nullish-coalescing": "error",
-            // "@typescript-eslint/prefer-optional-chain": "error",
-            // "@typescript-eslint/no-unnecessary-type-assertion": "error",
-            // "@typescript-eslint/no-floating-promises": "error",
-            // "@typescript-eslint/await-thenable": "error",
-            // "@typescript-eslint/no-misused-promises": "error",
-            
+
             // General JavaScript/TypeScript rules
+            "curly": "warn",
+            "eqeqeq": "warn",
+            "no-throw-literal": "warn",
+            "semi": "warn",
+            "prefer-const": "error",
+            "no-var": "error",
+            "no-console": "warn",
+            "no-debugger": "error",
+        },
+    },
+    // JavaScript files with basic JavaScript rules
+    {
+        files: ["media/**/*.js"],
+        
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: "module",
+        },
+        ...js.configs.recommended,
+        rules: {
+
             "curly": "warn",
             "eqeqeq": "warn",
             "no-throw-literal": "warn",

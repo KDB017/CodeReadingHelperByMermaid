@@ -37,22 +37,27 @@ function findArrowForMessage(anElement) {
 
 /**
  * 
- * @param {SVGElement} anArrowElement - 矢印要素（line要素）
- * @returns {{x: number, y: number}|null} ビューポート座標系の終点座標
+ * @param {SVGElement} anArrowElement  arrowElement
+ * @returns {{x: number, y: number}|null} end coordinate of arrow in arrowElement (viewport coordinate system)
  */
 function getEndCoordinateOfArrowInArrowElement(anArrowElement) {
     if (!anArrowElement) return null;
 
 
     if (!anArrowElement) return null;
-    const aRectangle = anArrowElement.getBoundingClientRect();           // ←ブラウザ表示位置
+    const aRectangle = anArrowElement.getBoundingClientRect();          
     const x1 = parseFloat(anArrowElement.getAttribute('x1') || '0');
     const x2 = parseFloat(anArrowElement.getAttribute('x2') || '0');
-    const endX = (x2 >= x1) ? aRectangle.right : aRectangle.left;       // 右向き/左向きで端を使い分け
+    const endX = (x2 >= x1) ? aRectangle.right : aRectangle.left;       
     const endY = aRectangle.top + aRectangle.height / 2;
     return { x: endX, y: endY };
 }
 
+/**
+ * Get participant (actor) elements from the document
+ * @param {Document} aDocument 
+ * @returns 
+ */
 function getActorElements(aDocument) {
     const roots = Array.from(aDocument.querySelectorAll('g[id^="root-"]'));
     // Filter out non-actor groups. Actor groups in Mermaid contain either a rect with class 'actor' or a text with class 'actor-box'.
@@ -71,11 +76,11 @@ function getActorElements(aDocument) {
 
 /**
  * Participant name from pushed function name 
- * @param {Document} aDocument - ドキュメント
- * @param {{x: number, y: number}} theArrowEndCoordinate - 矢印の終点座標（ビューポート座標系）
- * @returns {string|null} 最も近い参加者の名前、見つからない場合はnull
+ * @param {Document} aDocument - document
+ * @param  {Element} aTextElement - text element
+ * @returns {string|null} participant name or null if not found
  */
-function getNearestParticipantName(aDocument, aTextElement) {
+export function getNearestParticipantName(aDocument, aTextElement) {
     if (!aTextElement) return null;
     console.log("aTextElement", aTextElement);
     const actorElements = getActorElements(aDocument);
@@ -151,6 +156,12 @@ function getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements, e
 
 
 }
+
+/**
+ * Get the center coordinate of a participant element
+ * @param {Element} aParticipantElement 
+ * @returns {{x: number, y: number}}
+ */
 function getParticipantCenterCoordinate(aParticipantElement) {
     const rectBound = aParticipantElement.getBoundingClientRect();
     // console.log(aParticipantElement,rectBound)

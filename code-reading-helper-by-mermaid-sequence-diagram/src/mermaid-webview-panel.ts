@@ -169,7 +169,6 @@ export class MermaidWebviewPanel {
     };
     const editor = await window.showTextDocument(document, documentOptions);
 
-    // Reveal the range at the top of the editor
     editor.revealRange(range,TextEditorRevealType.AtTop);
   }
 

@@ -16,6 +16,13 @@ export class PythonAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["py"];
 
     constructor() {
+        // regex explanation:
+        // ([ \t]*)                 --> matches any number of spaces or tabs at the beginning of the line
+        // (?:async\s+)?            -->  matches the 'async' keyword 
+        // def\s+                    --> matches the 'def' keyword 
+        // ${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER} --> placeholder for the function name to be inserted later
+        // \s*(?:\[.*?\])?          --> matches type 
+        // \s*\(                     --> matches left parenthesis '('
         super(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
     }
 

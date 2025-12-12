@@ -18,7 +18,7 @@ Just fast, lightweight navigation for code readers.
 ## 🎥 Demo
 
 ### Quick Demo
-![Demo Animation](./images/demo.gif)
+<img src="./images/demo.gif" alt="Demo Animation" width="800">
 
 ### Step-by-Step Example
 

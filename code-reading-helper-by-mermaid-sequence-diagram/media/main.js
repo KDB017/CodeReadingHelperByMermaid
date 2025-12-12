@@ -1,4 +1,4 @@
-
+import { getNearestParticipantName } from './dom-util.js';
 /**
  * this script handles the rendering and interactivity of the Mermaid diagram
  * @author Kazuki Nakata(KDB017)
@@ -79,11 +79,6 @@ mermaid.run({
         // console.log("actorElements:", actorElements);
         const elements = document.querySelectorAll('.messageText');
         elements.forEach(element => {
-            const arrowElement = findArrowForMessage(element);
-            if (arrowElement){
-                // console.log("arrowElement:", arrowElement);
-            }
-            // console.log("element:", element);
             // console.log(element);
             const raw = element.textContent;
             // const colonIndex = raw.indexOf(":");
@@ -104,14 +99,13 @@ mermaid.run({
             const raw = element.textContent;
             let fn = raw.substring(0, raw.indexOf("("));
             fn = fn.trim();
-            if (!fn) return;
+            if (!fn) {return;}
             if (counts[fn] >= 5) {
                 element.style.fill = "orange";
             }
             if (counts[fn] >= 10) {
                 element.style.fill = "red";
             }
-            const nearestName = 'a'
             // console.log('ジャンプする前のfn: ' + fn)
             element.classList.add('clickable');
             element.addEventListener('click', (event) => {

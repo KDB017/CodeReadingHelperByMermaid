@@ -1,5 +1,6 @@
 
 YarnOrNPM=npm
+VSCE=vsce
 all:
 	test
 test:
@@ -15,3 +16,6 @@ watch:
 
 clean:
 	rm -rf ./out ./node_modules
+
+pack:
+	$(VSCE) package

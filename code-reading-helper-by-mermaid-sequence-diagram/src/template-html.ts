@@ -61,8 +61,8 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
           <div class="mermaid" id="mermaid-diagram">${code}</div>
         </div>
       </div>
-      <script nonce="${nonce}" src="${domUtilScriptUri}"></script>
-      <script nonce="${nonce}" src="${mainScriptUri}"></script>
+      <script type="module" nonce="${nonce}" src="${domUtilScriptUri}"></script>
+      <script type="module" nonce="${nonce}" src="${mainScriptUri}"></script>
     </body>
     </html>`;
 }

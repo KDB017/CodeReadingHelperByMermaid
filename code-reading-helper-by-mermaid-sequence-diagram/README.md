@@ -17,7 +17,34 @@ Just fast, lightweight navigation for code readers.
 
 ## 🎥 Demo
 
-> Coming soon — jump from a Mermaid `sequenceDiagram` to your function.
+### Quick Demo
+![Demo Animation](./images/demo.gif)
+
+### Step-by-Step Example
+
+1. **Open your source file** (e.g., `Example.py`)
+2. **Right-click → "Generate Sequence Diagram"** (via multilangSequence)
+3. **Open the generated `.mmd` file**
+4. **Click the preview button** in the top-right corner
+5. **Click any function name** in the diagram to jump to its definition!
+
+### Example Workflow
+
+```mermaid
+sequenceDiagram
+  participant Example.py
+  participant SampleBody
+  Example.py->>SampleBody: make_body()
+  SampleBody->>SampleBody: initialize()
+```
+
+👆 Click on `make_body()` or `initialize()` to navigate directly to the function definition!
+
+### Features in Action
+
+- **🔍 Zoom & Pan**: Use toolbar buttons to navigate large diagrams
+- **🎨 Color Coding**: Functions called frequently (5+) appear in orange, very frequent (10+) in red
+- **⚡ Instant Navigation**: Click-to-jump with no lag
 
 ---
 

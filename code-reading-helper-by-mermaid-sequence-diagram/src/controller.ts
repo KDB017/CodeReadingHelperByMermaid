@@ -16,7 +16,7 @@ export class Controller {
     /**
      * The MermaidWebviewPanel instance associated with this controller.
      */
-    private view: MermaidWebviewPanel
+    private view: MermaidWebviewPanel;
 
 
     /**

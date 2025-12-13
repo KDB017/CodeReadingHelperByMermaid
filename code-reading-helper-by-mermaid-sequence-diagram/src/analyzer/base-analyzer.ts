@@ -13,11 +13,11 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
     /**
      * the regex pattern for searching function definition
      */
-    protected pattern: string;
+    protected patterns: string[];
 
-    
-    constructor(pattern: string) {
-        this.pattern = pattern;
+
+    constructor(patterns: string[]) {
+        this.patterns = patterns;
     }
 
     /**
@@ -27,17 +27,7 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
      * @returns 
      */
     public searchFunctionPosition(text: string, functionName: string): SearchResult | null {
-        const escapedFunctionName = this.escapeRegExp(functionName);
-        const pattern = this.getSearchRegex(escapedFunctionName);
-        const match = pattern.exec(text);
-
-        if (match) {
-
-            console.log(`✅ MATCH FOUND for ${functionName} at index ${match.index}`);
-            return { index: match.index };
-        }
-
-        return null;
+        return this.analyze(text, functionName);
     }
 
     /**
@@ -45,20 +35,36 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
      * @param aString
      * @returns escaped string
      */
-    private escapeRegExp(aString: string) : string {
+    private escapeMetaCharacters(aString: string): string {
         return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    protected  getPattern(): string {
-        return this.pattern;
+    protected getPatterns(): string[] {
+        return this.patterns;
+    }
+
+    protected analyze(text: string, functionName: string): SearchResult | null {
+        const escapedFunctionName = this.escapeMetaCharacters(functionName);
+        for (const patternRegex of this.getSearchRegexes(escapedFunctionName)) {
+            const match = patternRegex.exec(text);
+            if (match) {
+                return { index: match.index };
+            }
+        }
+        return null;
     }
 
     /**
-     * abstract method to get the regex for searching function definition
-     * @param functionName - エスケープ済みの検索対象関数名
+     * build regex list for all configured patterns
+     * @param functionName 
      */
-    protected abstract getSearchRegex(functionName: string): RegExp;
+    private  getSearchRegexes(functionName: string): RegExp[] {
+        return this.getPatterns().map(pattern => {
+            const  correctFunctionRegExp= pattern.replace(BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, functionName);
+            return new RegExp(correctFunctionRegExp, 'm');
+        });
+    }
 
-    
+
 
 }

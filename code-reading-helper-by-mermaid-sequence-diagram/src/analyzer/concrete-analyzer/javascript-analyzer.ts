@@ -17,28 +17,9 @@ export class JavaScriptAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["js", "jsx"];
     
     constructor() {
-        // regex explanation:
-        // ^([ \t]*)                 --> matches the start of the line
-        // (export\s*)?              --> matches the 'export' keyword 
-        // (async\s*)?               --> matches the 'async' keyword 
-        // (function\s*)?            --> matches the 'function' keyword
-        // (\*\s*)?                  --> matches an asterisk (*) for generator functions 
-        // ${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER} --> placeholder for the function name to be inserted later
-        // [ \t]*\(                  --> matches left parenthesis '('
-        super(`^([ \\t]*)(export\\s*)?(async\\s*)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`);
-    }
+        super([`^([ \\t]*)(export\\s*)?(default\\s*)?(async\\s*)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
+            `^([ \\t]*)(export\\s+)?(?:(?:const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(?:async\\s*)?\\([^)]*\\)\\s*=>`,
 
-    /**
-     * returns the regex for searching function definition in javascript
-     * @param functionName 
-     * @returns 
-     */
-    public getSearchRegex(functionName: string): RegExp {
-        const pattern = this.getPattern();
-        const javaScriptRegExp = pattern.replace(
-            BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER,
-            functionName
-        );
-        return new RegExp(javaScriptRegExp, 'm');
+        ]);
     }
 }

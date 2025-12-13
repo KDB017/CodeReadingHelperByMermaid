@@ -16,27 +16,6 @@ export class PythonAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["py"];
 
     constructor() {
-        // regex explanation:
-        // ([ \t]*)                 --> matches any number of spaces or tabs at the beginning of the line
-        // (?:async\s+)?            -->  matches the 'async' keyword 
-        // def\s+                    --> matches the 'def' keyword 
-        // ${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER} --> placeholder for the function name to be inserted later
-        // \s*(?:\[.*?\])?          --> matches type 
-        // \s*\(                     --> matches left parenthesis '('
-        super(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
-    }
-
-    /**
-     * returns the regex for searching function definition in python
-     * @param functionName 
-     * @returns 
-     */
-    public getSearchRegex(functionName: string): RegExp {
-        const pattern = this.getPattern();
-        const pythonRegExp = pattern.replace(
-            BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, 
-            functionName
-        );
-        return new RegExp(pythonRegExp, 'm');
+        super([`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`]);
     }
 }

@@ -5,7 +5,7 @@ import { getNearestParticipantName } from './dom-util.js';
  */
 const vscode = acquireVsCodeApi();
 // thresholds with defaults; can be overridden via postMessage config
-let COLOR_THRESHOLDS = { orange: 5, red: 10 };
+const COLOR_THRESHOLDS = { orange: 5, red: 10 };
 // get DOM elements
 // const diagramContainer = document.getElementById('diagram-container');
 const mermaidDiagram = document.getElementById('mermaid-diagram');

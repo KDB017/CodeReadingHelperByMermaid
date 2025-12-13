@@ -122,7 +122,7 @@ export class MermaidModel {
                 }
             }
         }
-        console.warn(
+        this.dependent.showErrorMessage(
             'Unable to extract programming language from Mermaid title. ' +
             `Expected format: "${MermaidModel.SEQUENCE_DIAGRAM_MARKER} Example.py"`
         );

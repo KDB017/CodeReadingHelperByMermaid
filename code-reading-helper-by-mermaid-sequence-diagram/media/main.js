@@ -4,8 +4,10 @@ import { getNearestParticipantName } from './dom-util.js';
  * @author Kazuki Nakata(KDB017)
  */
 const vscode = acquireVsCodeApi();
+// thresholds with defaults; can be overridden via postMessage config
+let COLOR_THRESHOLDS = { orange: 5, red: 10 };
 // get DOM elements
-const diagramContainer = document.getElementById('diagram-container');
+// const diagramContainer = document.getElementById('diagram-container');
 const mermaidDiagram = document.getElementById('mermaid-diagram');
 const zoomInBtn = document.getElementById('zoom-in');
 const zoomOutBtn = document.getElementById('zoom-out');
@@ -74,56 +76,22 @@ function setupButtons() {
 mermaid.run({
     querySelector: '.mermaid',
     postRenderCallback: (id) => {
-        const counts = {};
-        // const actorElements = getActorElements(document);
-        // console.log("actorElements:", actorElements);
         const elements = document.querySelectorAll('.messageText');
-        elements.forEach(element => {
-            // console.log(element);
-            const raw = element.textContent;
-            // const colonIndex = raw.indexOf(":");
-            // let fn = raw.substring(colonIndex + 1);  // Remove leading numbers like "1:", "2.1:" etc.
-            // console.log("raw:", raw);
-            // console.log("colonIndex:", colonIndex);
-            // console.log("fn before processing:", fn);
-            let fn = raw.substring(0, raw.indexOf("("));
-            fn = fn.trim();
-            counts[fn] = (counts[fn] || 0) + 1;
-            console.log("抽出:", raw, "→", fn, counts[fn]);
-        });
+        const counts = buildFunctionCounts(elements);
 
-        // Collect participant ROOT groups (prefer <g> groups containing actor/participant shapes)
-        
+        applyColors(elements, counts);
 
         elements.forEach(element => {
             const raw = element.textContent;
             let fn = raw.substring(0, raw.indexOf("("));
             fn = fn.trim();
             if (!fn) {return;}
-            if (counts[fn] >= 5) {
-                element.style.fill = "orange";
-            }
-            if (counts[fn] >= 10) {
-                element.style.fill = "red";
-            }
-            // console.log('ジャンプする前のfn: ' + fn)
             element.classList.add('clickable');
             element.addEventListener('click', (event) => {
-                // Use message bounding rect as approximation of arrow section.
-                // Compute distance from each participant center to that rect (closest point).
-                
-                // Diagnostics: code points of function name
-                // const codePoints = Array.from(fn).map(ch => ch.charCodeAt(0));
                 const messageTextElement = event.currentTarget;
                 console.log("messageEl:", messageTextElement);
 
                 const nearestParticipantName = getNearestParticipantName(document,messageTextElement);
-                // const arrowElement = findArrowForMessage(messageTextElement);
-                // console.log("arrowElement:", arrowElement);
-                // const arrowEndCoordinate = getEndCoordinateOfArrowInArrowElement(arrowElement);
-                // console.log ("arrowEndCoordinate:", arrowEndCoordinate);
-                // const nearestParticipantName = getNearestParticipantName(document, arrowEndCoordinate);
-                // console.log("nearestParticipantName:", nearestParticipantName);
                 vscode.postMessage({
                     command: 'jumpToFunction',
                     functionName: fn,
@@ -137,3 +105,61 @@ mermaid.run({
         setupButtons();
     }
 });
+
+// Receive config from extension to update thresholds and re-apply colors
+window.addEventListener('message', (event) => {
+    const message = event.data;
+    if (!message || typeof message !== 'object') { return; }
+    if (message.command === 'config' && message.thresholds) {
+        const { orange, red } = message.thresholds;
+        if (typeof orange === 'number' && orange >= 0) COLOR_THRESHOLDS.orange = orange;
+        if (typeof red === 'number' && red >= 0) COLOR_THRESHOLDS.red = red;
+
+        try {
+            const elements = document.querySelectorAll('.messageText');
+            const counts = buildFunctionCounts(elements);
+            applyColors(elements, counts, true);
+        } catch (e) {
+            console.warn('Failed to apply config thresholds:', e);
+        }
+    }
+});
+
+/**
+ * Build a count map of function names from message elements.
+ */
+function buildFunctionCounts(elements) {
+    const counts = {};
+    elements.forEach(element => {
+        const raw = element.textContent || '';
+        let fn = raw.substring(0, raw.indexOf("("));
+        fn = fn.trim();
+        if (!fn) { return; }
+        counts[fn] = (counts[fn] || 0) + 1;
+    });
+    return counts;
+}
+
+/**
+ * Apply color styles based on counts and thresholds.
+ * @param {NodeListOf<Element>} elements 
+ * @param {Record<string, number>} counts 
+ * @param {boolean} resetStyle whether to clear existing style before applying
+ */
+function applyColors(elements, counts, resetStyle = false) {
+    elements.forEach(element => {
+        const raw = element.textContent || '';
+        let fn = raw.substring(0, raw.indexOf("("));
+        fn = fn.trim();
+        if (!fn) { return; }
+        if (resetStyle) {
+            element.style.fill = '';
+        }
+        if (counts[fn] >= COLOR_THRESHOLDS.orange) {
+            element.style.fill = 'orange';
+        }
+        if (counts[fn] >= COLOR_THRESHOLDS.red) {
+            element.style.fill = 'red';
+        }
+    });
+}

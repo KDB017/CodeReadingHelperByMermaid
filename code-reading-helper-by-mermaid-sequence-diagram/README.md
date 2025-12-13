@@ -2,7 +2,7 @@
 
 Jump from **Mermaid sequence diagrams → actual code** in VS Code.
 
-No heavy parsers. No WASM.  
+No heavy parsers.  
 Just fast, lightweight navigation for code readers.
 
 ---

@@ -55,6 +55,7 @@ export class MermaidWebviewPanel {
     this.mermaidModel = new MermaidModel(document, this);
     this.controller = new Controller(this.mermaidModel, this);
     this.update();
+    this.sendConfigToWebview();
     this.setupListeners();
   }
 
@@ -110,6 +111,8 @@ export class MermaidWebviewPanel {
 
     // realtime update
     this.panel.webview.html = getHtmlForWebview(this.panel, this.mermaidModel.getDocumentText(), this.extensionUri);
+    // After HTML is refreshed, push config to webview
+    this.sendConfigToWebview();
   }
 
 
@@ -169,7 +172,7 @@ export class MermaidWebviewPanel {
     };
     const editor = await window.showTextDocument(document, documentOptions);
 
-    editor.revealRange(range,TextEditorRevealType.AtTop);
+    editor.revealRange(range, TextEditorRevealType.AtTop);
   }
 
   public showInformationMessage(message: string): void {
@@ -178,6 +181,24 @@ export class MermaidWebviewPanel {
 
   public showErrorMessage(message: string): void {
     window.showErrorMessage(message);
+  }
+
+  /**
+   * Send configuration to the webview.
+   */
+  private sendConfigToWebview(): void {
+    try {
+      const config = workspace.getConfiguration();
+      const orange = config.get<number>('function.color.orange.Thresholds: Thresholds for Orange', 5);
+      const red = config.get<number>('function.color.red.Thresholds: Thresholds for Red', 10);
+
+      this.panel.webview.postMessage({
+        command: 'config',
+        thresholds: { orange, red }
+      });
+    } catch (error) {
+      this.showErrorMessage(`Error sending config to webview: ${error}`);
+    }
   }
 
 

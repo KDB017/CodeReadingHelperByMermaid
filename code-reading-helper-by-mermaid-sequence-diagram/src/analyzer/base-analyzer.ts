@@ -35,8 +35,8 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
      * @param aString
      * @returns escaped string
      */
-    private escapeMetaCharacters(aString: string): string {
-        return aString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    private escapeRegExp(functionName: string): string {
+        return functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     protected getPatterns(): string[] {
@@ -44,10 +44,11 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
     }
 
     protected analyze(text: string, functionName: string): SearchResult | null {
-        const escapedFunctionName = this.escapeMetaCharacters(functionName);
+        const escapedFunctionName = this.escapeRegExp(functionName);
         for (const patternRegex of this.getSearchRegexes(escapedFunctionName)) {
             const match = patternRegex.exec(text);
             if (match) {
+                console.log(`Match for function: ${functionName}`);
                 return { index: match.index };
             }
         }

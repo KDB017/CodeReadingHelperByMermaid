@@ -78,9 +78,13 @@ export class Controller {
                 return;
             }
 
-            // Verify extension is supported
-            if (!AnalyzerFactory.isSupported(fileExtension)) {
+            // Get analyzer for the file extension
+            let analyzer: ICodeAnalyzer;
+            try {
+                analyzer = AnalyzerFactory.getAnalyzerForFile(fileExtension);
+            } catch (error) {
                 this.view.showErrorMessage(
+                    error+
                     `Unsupported file extension: ${fileExtension}. ` +
                     'Supported languages: Python (py), Java (java), JavaScript (js, jsx), TypeScript (ts, tsx)'
                 );
@@ -99,7 +103,6 @@ export class Controller {
                 try {
                     const document = await workspace.openTextDocument(file);
                     const text = document.getText();
-                    const analyzer: ICodeAnalyzer = AnalyzerFactory.getAnalyzerForFile(fileExtension);
                     console.log(`📖 File: ${file.fsPath}`);
                     const searchResult = analyzer.searchFunctionPosition(text, functionName);
 

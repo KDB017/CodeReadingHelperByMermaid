@@ -24,7 +24,7 @@ export class MermaidModel {
     /**
      * Marker indicating the sequence diagram title line.
      */
-    private static readonly SEQUENCE_DIAGRAM_MARKER = "Title Sequence diagram of";
+    private readonly SEQUENCE_DIAGRAM_MARKER = "Title Sequence diagram of";
 
     /**
      * Constructor for MermaidModel
@@ -107,7 +107,7 @@ export class MermaidModel {
         const text = this.getDocumentText();
         
         for (const line of text.split('\n')) {
-            if (line.includes(MermaidModel.SEQUENCE_DIAGRAM_MARKER)) {
+            if (line.includes(this.SEQUENCE_DIAGRAM_MARKER)) {
                 // Extract extension after last dot
                 const lastDotIndex = line.lastIndexOf('.');
                 if (lastDotIndex !== -1) {
@@ -124,7 +124,7 @@ export class MermaidModel {
         }
         this.dependent.showErrorMessage(
             'Unable to extract programming language from Mermaid title. ' +
-            `Expected format: "${MermaidModel.SEQUENCE_DIAGRAM_MARKER} Example.py"`
+            `Expected format: "${this.SEQUENCE_DIAGRAM_MARKER} Example.py"`
         );
         return '';
     }

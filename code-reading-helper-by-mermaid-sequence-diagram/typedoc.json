@@ -14,7 +14,7 @@
   "externalPattern": [
     "**/node_modules/**"
   ],
-  "excludePrivate": true,
+  "excludePrivate": false,
   "excludeProtected": false,
   "includeVersion": true,
   "skipErrorChecking": true

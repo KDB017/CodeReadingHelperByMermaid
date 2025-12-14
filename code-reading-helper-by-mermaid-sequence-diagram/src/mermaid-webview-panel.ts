@@ -34,7 +34,7 @@ export class MermaidWebviewPanel {
   /**
    * Mermaid model
    */
-  private mermaidModel: MermaidModel;
+  private model: MermaidModel;
 
   /**
    * Controller for handling function jumps
@@ -52,8 +52,8 @@ export class MermaidWebviewPanel {
   private constructor(panel: WebviewPanel, document: TextDocument, extensionUri: Uri) {
     this.panel = panel;
     this.extensionUri = extensionUri;
-    this.mermaidModel = new MermaidModel(document, this);
-    this.controller = new Controller(this.mermaidModel, this);
+    this.model = new MermaidModel(document, this);
+    this.controller = new Controller(this.model, this);
     this.update();
     this.sendConfigToWebview();
     this.setupListeners();
@@ -110,7 +110,7 @@ export class MermaidWebviewPanel {
     // this.lastContent = this.document.getText() || " ";
 
     // realtime update
-    this.panel.webview.html = getHtmlForWebview(this.panel, this.mermaidModel.getDocumentText(), this.extensionUri);
+    this.panel.webview.html = getHtmlForWebview(this.panel, this.model.getDocumentText(), this.extensionUri);
     // After HTML is refreshed, push config to webview
     this.sendConfigToWebview();
   }
@@ -129,8 +129,8 @@ export class MermaidWebviewPanel {
 
     // Listen for document changes to update the webview
     workspace.onDidChangeTextDocument((event) => {
-      if (event.document === this.mermaidModel.getDocument()) {
-        this.mermaidModel.update(event.document);
+      if (event.document === this.model.getDocument()) {
+        this.model.update(event.document);
         debouncedUpdate();
       }
     }, this.disposables);
@@ -138,8 +138,8 @@ export class MermaidWebviewPanel {
     // Listen for active editor changes to update the document if needed
     window.onDidChangeActiveTextEditor((editor) => {
       if (editor?.document?.languageId.startsWith('mermaid')) {
-        if (editor.document.uri.toString() !== this.mermaidModel.getDocument().uri.toString()) {
-          this.mermaidModel.update(editor.document);
+        if (editor.document.uri.toString() !== this.model.getDocument().uri.toString()) {
+          this.model.update(editor.document);
           // this.document = editor.document;
           debouncedUpdate();
         }

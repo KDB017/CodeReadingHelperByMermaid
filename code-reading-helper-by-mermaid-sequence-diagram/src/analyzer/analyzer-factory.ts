@@ -17,15 +17,6 @@ export class AnalyzerFactory {
     ];
 
     /**
-     * Check if file extension is supported
-     * @param fileExtension 
-     * @returns true if supported
-     */
-    public static isSupported(fileExtension: string): boolean {
-        return this.SUPPORTED_EXTENSIONS.includes(fileExtension);
-    }
-
-    /**
      * Analyzer factory method to get the appropriate analyzer based on file extension
      * @param fileExtension 
      * @returns 

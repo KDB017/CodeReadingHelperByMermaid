@@ -48,10 +48,10 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
     <div class="container">
         <!-- tool -->
         <div class="toolbar">
-          <button class="btn" id="zoom-in" tabindex="0" accesskey="a">🔍+</button>
-          <button class="btn" id="zoom-out" tabindex="1" accesskey="s">🔍-</button>
-          <button class="btn" id="reset-zoom" tabindex="2" accesskey="d">⚡ Reset</button>
-          <button class="btn" id="toggle-pan" tabindex="3" accesskey="f">✋ Pan</button>
+          <button class="btn" id="zoom-in" tabindex="0" accesskey="a">zoom-in+</button>
+          <button class="btn" id="zoom-out" tabindex="1" accesskey="s">zoom-out-</button>
+          <button class="btn" id="reset-zoom" tabindex="2" accesskey="d"> Reset</button>
+          <button class="btn" id="toggle-pan" tabindex="3" accesskey="f"> Pan</button>
           <div class="zoom-info">
             Zoom: <span id="zoom-level">100%</span>
           </div>

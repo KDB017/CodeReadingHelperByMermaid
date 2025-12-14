@@ -9,10 +9,9 @@ const COLOR_THRESHOLDS = { orange: 5, red: 10 };
 // get DOM elements
 // const diagramContainer = document.getElementById('diagram-container');
 const mermaidDiagram = document.getElementById('mermaid-diagram');
-const zoomInBtn = document.getElementById('zoom-in');
-const zoomOutBtn = document.getElementById('zoom-out');
-const resetZoomBtn = document.getElementById('reset-zoom');
-const togglePanBtn = document.getElementById('toggle-pan');
+const zoomInButton = document.getElementById('zoom-in');
+const zoomOutButton = document.getElementById('zoom-out');
+const resetZoomButton = document.getElementById('reset-zoom');
 const zoomLevelSpan = document.getElementById('zoom-level');
 // Panzoom instance
 let panzoomInstance = null;
@@ -28,11 +27,13 @@ function initializePanzoom() {
     }
 
     panzoomInstance = Panzoom(mermaidDiagram, {
-        maxScale: 10,
+        maxScale: 20,
         minScale: 0.1,
         contain: 'outside',
-        disablePan: !isPanEnabled,
-        disableZoom: false
+        disablePan: false,
+        disableZoom: false,
+        bounds: true, 
+        boundsPadding: 0.05 
     });
 
     // Zoom level update event listener
@@ -40,34 +41,32 @@ function initializePanzoom() {
         const scale = Math.round(panzoomInstance.getScale() * 100);
         zoomLevelSpan.textContent = scale + '%';
     });
+
+    // マウスホイールでパン（水平・垂直）
+    mermaidDiagram.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        panzoomInstance.pan(-event.deltaX, -event.deltaY, { relative: true });
+    }, { passive: false });
 }
 
 console.log(mermaidDiagram);
 // Button event setup
 function setupButtons() {
-    zoomInBtn.addEventListener('click', () => {
+    zoomInButton.addEventListener('click', () => {
         if (panzoomInstance) {
             panzoomInstance.zoomIn();
         }
     });
 
-    zoomOutBtn.addEventListener('click', () => {
+    zoomOutButton.addEventListener('click', () => {
         if (panzoomInstance) {
             panzoomInstance.zoomOut();
         }
     });
 
-    resetZoomBtn.addEventListener('click', () => {
+    resetZoomButton.addEventListener('click', () => {
         if (panzoomInstance) {
             panzoomInstance.reset();
-        }
-    });
-
-    togglePanBtn.addEventListener('click', () => {
-        isPanEnabled = !isPanEnabled;
-        togglePanBtn.textContent = isPanEnabled ? '🔒 Lock' : '✋ Pan';
-        if (panzoomInstance) {
-            panzoomInstance.setOptions({ disablePan: !isPanEnabled });
         }
     });
 }

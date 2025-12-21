@@ -5,7 +5,7 @@ import { getNearestParticipantName } from './dom-util.js';
  */
 const vscode = acquireVsCodeApi();
 // thresholds with defaults; can be overridden via postMessage config
-const COLOR_THRESHOLDS = { orange: 5, red: 10 };
+const COLORTHRESHOLDS = { orange: 5, red: 10 };
 // get DOM elements
 // const diagramContainer = document.getElementById('diagram-container');
 const mermaidDiagram = document.getElementById('mermaid-diagram');
@@ -15,7 +15,6 @@ const resetZoomButton = document.getElementById('reset-zoom');
 const zoomLevelSpan = document.getElementById('zoom-level');
 // Panzoom instance
 let panzoomInstance = null;
-let isPanEnabled = false;
 
 // Mermaid initialization
 mermaid.initialize({ startOnLoad: false, theme: "forest" });
@@ -32,8 +31,8 @@ function initializePanzoom() {
         contain: 'outside',
         disablePan: false,
         disableZoom: false,
-        bounds: true, 
-        boundsPadding: 0.05 
+        bounds: true,
+        boundsPadding: 0.05
     });
 
     // Zoom level update event listener
@@ -42,7 +41,7 @@ function initializePanzoom() {
         zoomLevelSpan.textContent = scale + '%';
     });
 
-    // マウスホイールでパン（水平・垂直）
+    // mouse wheel panning
     mermaidDiagram.addEventListener('wheel', (event) => {
         event.preventDefault();
         panzoomInstance.pan(-event.deltaX, -event.deltaY, { relative: true });
@@ -84,13 +83,13 @@ mermaid.run({
             const raw = element.textContent;
             let fn = raw.substring(0, raw.indexOf("("));
             fn = fn.trim();
-            if (!fn) {return;}
+            if (!fn) { return; }
             element.classList.add('clickable');
             element.addEventListener('click', (event) => {
                 const messageTextElement = event.currentTarget;
                 console.log("messageEl:", messageTextElement);
 
-                const nearestParticipantName = getNearestParticipantName(document,messageTextElement);
+                const nearestParticipantName = getNearestParticipantName(document, messageTextElement);
                 vscode.postMessage({
                     command: 'jumpToFunction',
                     functionName: fn,
@@ -108,21 +107,20 @@ mermaid.run({
 // Receive config from extension to update thresholds and re-apply colors
 window.addEventListener('message', (event) => {
     const message = event.data;
-    if (!message || typeof message !== 'object') { return; }
-    if (message.command === 'config' && message.thresholds) {
-        const { orange, red } = message.thresholds;
-        if (typeof orange === 'number' && orange >= 0) COLOR_THRESHOLDS.orange = orange;
-        if (typeof red === 'number' && red >= 0) COLOR_THRESHOLDS.red = red;
+    const { orange, red } = message.thresholds;
+    if (typeof orange === 'number' && orange >= 0) COLORTHRESHOLDS.orange = orange;
+    if (typeof red === 'number' && red >= 0) COLORTHRESHOLDS.red = red;
 
-        try {
-            const elements = document.querySelectorAll('.messageText');
-            const counts = buildFunctionCounts(elements);
-            applyColors(elements, counts, true);
-        } catch (e) {
-            console.warn('Failed to apply config thresholds:', e);
-        }
+    try {
+        const elements = document.querySelectorAll('.messageText');
+        const counts = buildFunctionCounts(elements);
+        applyColors(elements, counts, true);
+    } catch (error) {
+        console.warn('Failed to apply config thresholds:', error);
     }
+
 });
+
 
 /**
  * Build a count map of function names from message elements.
@@ -154,10 +152,10 @@ function applyColors(elements, counts, resetStyle = false) {
         if (resetStyle) {
             element.style.fill = '';
         }
-        if (counts[fn] >= COLOR_THRESHOLDS.orange) {
+        if (counts[fn] >= COLORTHRESHOLDS.orange) {
             element.style.fill = 'orange';
         }
-        if (counts[fn] >= COLOR_THRESHOLDS.red) {
+        if (counts[fn] >= COLORTHRESHOLDS.red) {
             element.style.fill = 'red';
         }
     });

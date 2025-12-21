@@ -3,7 +3,7 @@ import { ICodeAnalyzer } from "./interface/code-analyzer-interface";
 /**
  * this is the base analyzer class
  */
-export abstract class BaseAnalyzer implements ICodeAnalyzer {
+export abstract class BaseAnalyzer extends Object implements ICodeAnalyzer{
 
     /**
      * the placeholder for function name in regex pattern
@@ -17,6 +17,7 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
 
 
     constructor(patterns: string[]) {
+        super();
         this.patterns = patterns;
     }
 
@@ -59,7 +60,7 @@ export abstract class BaseAnalyzer implements ICodeAnalyzer {
      * build regex list for all configured patterns
      * @param functionName 
      */
-    private  getSearchRegexes(functionName: string): RegExp[] {
+    protected  getSearchRegexes(functionName: string): RegExp[] {
         return this.getPatterns().map(pattern => {
             const  correctFunctionRegExp= pattern.replace(BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER, functionName);
             return new RegExp(correctFunctionRegExp, 'm');

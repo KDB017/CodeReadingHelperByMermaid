@@ -6,7 +6,7 @@ import { MermaidWebviewPanel } from "./mermaid-webview-panel";
 /**
  * Controller class to handle navigation to function definitions in the workspace.
  */
-export class Controller {
+export class Controller extends Object {
 
     /**
      * The MermaidModel instance associated with this controller.
@@ -23,25 +23,10 @@ export class Controller {
      * Constructor for the Controller class.
      */
     constructor(model: MermaidModel, view: MermaidWebviewPanel) {
+        super();
         this.model = model;
         this.view = view;
     }
-
-    // /**
-    //  * set the model
-    //  * @param model 
-    //  */
-    // public setModel(model: MermaidModel): void {
-    //     this.model = model;
-    // }
-
-    // /**
-    //  * set the view
-    //  * @param view 
-    //  */
-    // public setView(view: MermaidWebviewPanel): void {
-    //     this.view = view;
-    // }
 
     /**
      * jump to function definition in workspace
@@ -183,8 +168,7 @@ export class Controller {
             // max 200 files
             const candidates = await workspace.findFiles(includePattern,null,200); 
             const results = await Promise.allSettled(candidates.map(uri => workspace.openTextDocument(uri)));
-            const matched = results
-                .map((result, i) =>
+            const matched = results.map((result, i) =>
                     result.status === 'fulfilled' && result.value.getText().includes(targetName)
                         ? candidates[i]
                         : null

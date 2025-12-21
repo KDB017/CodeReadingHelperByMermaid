@@ -18,15 +18,11 @@ export class TypeScriptAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["ts", "tsx"];
 
     constructor() {
-        super([`^([ \t]*)(export\\s+)?(?:(?:public|protected|private|static|abstract|async)\\s+)*(?:function\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(?:<(?:[^<>]|=>|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \\t]*\\(`,
-            `^([ \\t]*)(export\\s+)?(?:(?:const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(?:async\\s*)?\\([^)]*\\)\\s*=>`,
+        super([
+            `^([ \t]*)((export|public|protected|private|static|async|override|default|get|set)\\s+)*(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(<([^<>]|=>|<[^<>]*(<[^<>]*>[^<>]*)*>)*>)?[ \t]*\\(`,
+            `^([ \t]*)(export\\s+)?((const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(async\\s*)?\\([^)]*\\)\\s*=>`,
         ]);;
     }
-    /**
-     * returns the regex for searching function definition in typescript
-     * @param functionName 
-     * @returns 
-     */
 
     
 }

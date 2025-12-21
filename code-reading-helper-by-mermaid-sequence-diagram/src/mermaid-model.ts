@@ -4,7 +4,7 @@ import { MermaidWebviewPanel } from "./mermaid-webview-panel";
 /**
  * Model for Mermaid Diagram
  */
-export class MermaidModel {
+export class MermaidModel extends Object {
 
     /**
      * The text document containing the Mermaid code.
@@ -29,20 +29,14 @@ export class MermaidModel {
     /**
      * Constructor for MermaidModel
      */
-    constructor(textDocument: TextDocument,view: MermaidWebviewPanel) {
+    constructor(textDocument: TextDocument, view: MermaidWebviewPanel) {
+        super();
         this.document = textDocument;
         this.dependent = view;
         this.programmingLanguageFileExtension = "";
         this.update(textDocument);
     }
 
-    // /**
-    //  * set the dependent view
-    //  * @param view The dependent view (MermaidWebviewPanel) that displays the diagram.
-    //  */
-    // public setView(view: MermaidWebviewPanel): void {
-    //     this.dependent = view;
-    // }
 
     /**
      * Notify the dependent view that the model has changed.
@@ -105,7 +99,7 @@ export class MermaidModel {
      */
     private extractProgrammingLanguageFileExtensionFromTitle(): string {
         const text = this.getDocumentText();
-        
+
         for (const line of text.split('\n')) {
             if (line.includes(this.SEQUENCE_DIAGRAM_MARKER)) {
                 // Extract extension after last dot
@@ -114,7 +108,7 @@ export class MermaidModel {
                     // Get characters after the dot until whitespace or end
                     const afterDot = line.substring(lastDotIndex + 1);
                     const fileExtension = afterDot.trim().toLowerCase();
-                    
+
                     if (fileExtension.length > 0) {
                         console.log("extractProgrammingLanguageFileExtensionFromTitle:", fileExtension);
                         return fileExtension;
@@ -123,7 +117,7 @@ export class MermaidModel {
             }
         }
         this.dependent.showErrorMessage(
-            'Unable to extract programming language from Mermaid title. ' +
+            'can\'t extract programming language from Mermaid title. ' +
             `Expected format: "${this.SEQUENCE_DIAGRAM_MARKER} Example.py"`
         );
         return '';

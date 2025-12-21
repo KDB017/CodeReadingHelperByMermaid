@@ -17,8 +17,9 @@ export class JavaScriptAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["js", "jsx"];
     
     constructor() {
-        super([`^([ \\t]*)(export\\s*)?(default\\s*)?(async\\s*)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
-            `^([ \\t]*)(export\\s+)?(?:(?:const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(?:async\\s*)?\\([^)]*\\)\\s*=>`,
+        super([`^([ \\t]*)(export\\s*)?(default\\s*)?((async|set|get)\\s*)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
+            `^([ \\t]*)(export\\s+)?((const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(async\\s*)?\\([^)]*\\)\\s*=>`,
+
 
         ]);
     }

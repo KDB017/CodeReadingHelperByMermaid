@@ -16,6 +16,6 @@ export class PythonAnalyzer extends BaseAnalyzer {
     public static readonly EXTENSIONS = ["py"];
 
     constructor() {
-        super([`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`]);
+        super([`([ \t]*)(async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(\\[.*?\\])?\\s*\\(`]);
     }
 }

@@ -2,7 +2,7 @@ import { WebviewPanel, Uri } from 'vscode';
 import { Constants } from './constants';
 /**
  * html for displaying webView.
- * this code is include App.svelte in Mermaid Chart
+ * this code is include App.svelte in Mermaid Preview
  * to do separate script and style
  * 
  */

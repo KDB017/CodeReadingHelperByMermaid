@@ -9,7 +9,7 @@ import { MermaidModel } from './mermaid-model';
  * it is based on previewPanel in Mermaid preview 
  * to do if webview is closed,can open a new one : resolve 2025/9/25
  */
-export class MermaidWebviewPanel {
+export class MermaidWebviewPanel extends Object{
 
   /**
    * webview panel instance. this is used to ensure only one panel is open at a time.
@@ -50,6 +50,7 @@ export class MermaidWebviewPanel {
    * @param document vscode text document
    */
   private constructor(panel: WebviewPanel, document: TextDocument, extensionUri: Uri) {
+    super();
     this.panel = panel;
     this.extensionUri = extensionUri;
     this.model = new MermaidModel(document, this);

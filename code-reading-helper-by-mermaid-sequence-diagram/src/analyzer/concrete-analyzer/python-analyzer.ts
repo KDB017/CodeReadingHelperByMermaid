@@ -9,13 +9,19 @@ export class PythonAnalyzer extends BaseAnalyzer {
      * the regex pattern for searching function definition in python
      */
     // public static readonly pattern =(`([ \t]*)(?:async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(?:\\[.*?\\])?\\s*\\(`);
-    
+
     /**
      * the file extensions for python files
      */
     public static readonly EXTENSIONS = ["py"];
 
     constructor() {
-        super([`([ \t]*)(async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*(\\[.*?\\])?\\s*\\(`]);
+            // method Definition pattern 
+            //but generics is one or double
+        super([`([ \t]*)(async\\s+)?def\\s+${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*`+
+            // generics part not captured
+            `(?:\\[(?:[^\\[\\]]|\\[[^\\[\\]]*\\])*\\]\\s*)?\\(`]);
+
+
     }
 }

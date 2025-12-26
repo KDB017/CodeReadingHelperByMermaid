@@ -15,9 +15,13 @@ export class JavaScriptAnalyzer extends BaseAnalyzer {
      * the file extensions for javascript files
      */
     public static readonly EXTENSIONS = ["js", "jsx"];
-        // method Definition pattern
     constructor() {
-        super([`^([ \\t]*)(export\\s*)?(default\\s*)?(static\\s*)?((async|set|get)\\s*)?(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
+
+        super(
+            //function pattern
+            [`^([ \\t]*)(export\\s*)?(default\\s*)?(async\\s*)?function\\s*(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
+            // method pattern
+            `^([ \\t]*)(static\\s*)?((async|set|get)\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}[ \\t]*\\(`,
             // variable assigned arrow function
             `^([ \\t]*)(export\\s+)?((const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(async\\s*)?\\([^)]*\\)\\s*=>`,
 

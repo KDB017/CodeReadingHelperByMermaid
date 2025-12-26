@@ -2,7 +2,7 @@
   "name": "code-reading-helper-by-mermaid-sequence-diagram",
   "displayName": "code-reading-helper-by-mermaid-sequence-diagram",
   "description": "show mermaid sequencediagrams in webview and click to jump function",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "publisher": "kazu017",
   "engines": {
     "vscode": "^1.105.0"

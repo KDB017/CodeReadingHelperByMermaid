@@ -19,7 +19,9 @@ export class TypeScriptAnalyzer extends BaseAnalyzer {
 
     constructor() {
         super([
-            `^([ \t]*)((export|public|protected|private|static|async|override|default|get|set)\\s+)*(function\\s*)?(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(<([^<>]|=>|<[^<>]*>)*>)?[ \t]*\\(`,
+            //function pattern
+            `^([ \t]*)((export|async|default)\\s+)*function\\s*(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(<([^<>]|=>|<[^<>]*>)*>)?[ \t]*\\(`,
+            `^([ \t]*)((public|protected|private|static|async|override|get|set)\\s+)*(\\*\\s*)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}(<([^<>]|=>|<[^<>]*>)*>)?[ \t]*\\(`,
             `^([ \t]*)(export\\s+)?((const|let|var)\\s+)?${BaseAnalyzer.FUNCTION_NAME_PLACEHOLDER}\\s*=\\s*(async\\s*)?\\([^)]*\\)\\s*=>`,
         ]);;
     }

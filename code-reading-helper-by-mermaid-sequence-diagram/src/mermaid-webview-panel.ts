@@ -105,10 +105,6 @@ export class MermaidWebviewPanel extends Object{
    * Update the webview content.
    */
   public update(): void {
-    //Fetch the configuration from VSCode workspace
-    // const config = workspace.getConfiguration();
-    // const maxZoom = config.get<number>(Constants.MAX_ZOOM, 5);
-    // this.lastContent = this.document.getText() || " ";
 
     // realtime update
     this.panel.webview.html = getHtmlForWebview(this.panel, this.model.getDocumentText(), this.extensionUri);

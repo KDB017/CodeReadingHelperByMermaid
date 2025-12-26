@@ -22,7 +22,7 @@ export class JavaAnalyzer extends BaseAnalyzer {
             // first annotations not captured
             [`^([ \t]*)(?:@[A-Za-z_]*\\s*)*`+
             // second modifiers not captured
-            `(?:(?:public|protected|private|static|abstract|final|synchronized|native|strictfp)\\s+)*`+
+            `(?:(?:public|protected|private|static|final|synchronized|strictfp)\\s+)*`+
             // third TypeParameters not captured
             `(?:<(?:(?:[^<>]|<[^<>]*>)*?)>\\s*)?`+
             // fourth annotations not captured

@@ -160,8 +160,8 @@ export class MermaidWebviewPanel extends Object{
     }, null, this.disposables);
   }
 
-  public async showFunctionLocation(document: TextDocument, pos: Position): Promise<void> {
-    const range = new Range(pos, pos);
+  public async showFunctionLocation(document: TextDocument, position: Position): Promise<void> {
+    const range = new Range(position, position);
     const documentOptions: TextDocumentShowOptions = {
       selection: range,
       viewColumn: ViewColumn.One,
@@ -186,7 +186,7 @@ export class MermaidWebviewPanel extends Object{
   private sendConfigToWebview(): void {
     try {
       const config = workspace.getConfiguration();
-      const orange = config.get<number>('function.color.orange.Thresholds: Thresholds for Orange', 5);
+      const orange = config.get<number>('function.color.orange.Thresholds: Thresholds for Orange', 3);
       const red = config.get<number>('function.color.red.Thresholds: Thresholds for Red', 10);
 
       this.panel.webview.postMessage({
@@ -198,41 +198,6 @@ export class MermaidWebviewPanel extends Object{
     }
   }
 
-
-  /**
-   * this method is for test
-   * Gets the current MermaidWebviewPanel instance.
-   * @returns MermaidWebviewPanel current panel instance
-   */
-  public static getCurrentPanel(): MermaidWebviewPanel | undefined {
-    return MermaidWebviewPanel.currentPanel;
-  }
-
-
-
-  /**
-   * this method is for test
-   * Gets the current document.
-   * @returns current document
-   */
-  public testUpdate(): void {
-    MermaidWebviewPanel.currentPanel?.update();
-  }
-
-  /**
-   * this method is for test
-   * view disposables after event. 
-   */
-  public testsSetupListener(): void {
-    console.log(this.disposables);
-  }
-  /**
-  * this method is for test
-  * view disposables after event. 
-  */
-  public testGetWebview(): WebviewPanel {
-    return this.panel;
-  }
 
 
 }

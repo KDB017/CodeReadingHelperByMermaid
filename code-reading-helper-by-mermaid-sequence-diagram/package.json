@@ -101,6 +101,5 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@panzoom/panzoom": "^4.6.0"
   }
 }

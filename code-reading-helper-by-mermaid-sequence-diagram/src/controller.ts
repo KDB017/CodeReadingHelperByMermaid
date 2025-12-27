@@ -69,7 +69,7 @@ export class Controller extends Object {
                 analyzer = AnalyzerFactory.getAnalyzerForFile(fileExtension);
             } catch (error) {
                 this.view.showErrorMessage(
-                    error+
+                    error +
                     `Unsupported file extension: ${fileExtension}. ` +
                     'Supported languages: Python (py), Java (java), JavaScript (js, jsx), TypeScript (ts, tsx)'
                 );
@@ -92,9 +92,9 @@ export class Controller extends Object {
                     const searchResult = analyzer.searchFunctionPosition(text, functionName);
 
                     if (searchResult !== null) {
-                        const pos = document.positionAt(searchResult.index);
-                        this.view.showFunctionLocation(document, pos);
-                        console.log('✅ Jump completed successfully');
+                        const position = document.positionAt(searchResult.index);
+                        this.view.showFunctionLocation(document, position);
+                        this.view.showInformationMessage('✅ Jump completed successfully');
                         return;
                     }
                 } catch (fileError: any) {
@@ -133,7 +133,7 @@ export class Controller extends Object {
         // Phase 1: Search by filename (both with and without extension)
         console.log('🔍 Phase 1 - Searching for file:', `"${targetName}"`);
 
-        const filenameMatches = await this.findEqualFileNameInWorkspace(targetName, fileExtension);
+        const filenameMatches = await this.findFilesByName(targetName, fileExtension);
         if (filenameMatches.length > 0) {
             console.log('✅ Phase 1 - Filename match found:', filenameMatches.map(uri => uri.fsPath));
             return filenameMatches;
@@ -146,7 +146,7 @@ export class Controller extends Object {
         return contentMatches;
     }
 
-    private async findEqualFileNameInWorkspace(targetName: string, fileExtension: string): Promise<Uri[]> {
+    private async findFilesByName(targetName: string, fileExtension: string): Promise<Uri[]> {
         const matched = new Set<string>(); // Use Set to avoid duplicates
         try {
             const filenameMatches = await workspace.findFiles(`**/${targetName}*`);
@@ -156,8 +156,8 @@ export class Controller extends Object {
             );
             console.log('✅ Phase 1 - Filename matches count (after language filter):', languageSpecificMatches.length);
             languageSpecificMatches.forEach(uri => matched.add(uri.fsPath));
-        } catch (e) {
-            console.error('❌ Phase 1 - Error during filename search:', e);
+        } catch (error: any) {
+            console.error('❌ Phase 1 - Error during filename search:', error);
         }
         return Promise.resolve(Array.from(matched).map(fsPath => Uri.file(fsPath)));
     }
@@ -166,18 +166,18 @@ export class Controller extends Object {
         const includePattern = `**/*.${fileExtension}`;
         try {
             // max 200 files
-            const candidates = await workspace.findFiles(includePattern,null,200); 
+            const candidates = await workspace.findFiles(includePattern, null, 200);
+            if (candidates.length < 1) { return []; }
             const results = await Promise.allSettled(candidates.map(uri => workspace.openTextDocument(uri)));
-            const matched = results.map((result, i) =>
-                    result.status === 'fulfilled' && result.value.getText().includes(targetName)
-                        ? candidates[i]
-                        : null
-                )
-                .filter((uri): uri is Uri => uri !== null);
-            console.log('🔍 Phase 2 - Candidate files count for content search:', candidates.length);
+            const matched: Uri[] = [];
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled' && result.value.getText().includes(targetName)) {
+                    matched.push(candidates[index]!);
+                }
+            });
             return matched;
-        } catch (e) {
-            console.error('❌ Phase 2 - Error while enumerating files for content search:', e);
+        } catch (error: any) {
+            console.error('❌ Phase 2 - Error while enumerating files for content search:', error);
             return [];
         }
     }

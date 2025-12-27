@@ -16,6 +16,9 @@ export abstract class BaseAnalyzer extends Object implements ICodeAnalyzer{
     protected patterns: string[];
 
 
+    /**     * constructor
+     * @param patterns 
+     */
     constructor(patterns: string[]) {
         super();
         this.patterns = patterns;
@@ -44,6 +47,11 @@ export abstract class BaseAnalyzer extends Object implements ICodeAnalyzer{
         return this.patterns;
     }
 
+    /**
+     * analyze the text to find function definition position
+     * @param text 
+     * @param functionName 
+     */
     protected analyze(text: string, functionName: string): SearchResult | null {
         const escapedFunctionName = this.escapeRegExp(functionName);
         for (const patternRegex of this.getSearchRegexes(escapedFunctionName)) {

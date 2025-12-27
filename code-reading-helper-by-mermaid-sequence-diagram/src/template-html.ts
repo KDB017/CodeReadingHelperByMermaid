@@ -6,6 +6,9 @@ import { Constants } from './constants';
  * to do separate script and style
  * 
  */
+
+
+
 export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUri: Uri): string {
 
   // Get the URI for the Mermaid CSS file
@@ -51,7 +54,6 @@ export function getHtmlForWebview(panel: WebviewPanel, code: string, extensionUr
           <button class="btn" id="zoom-in" tabindex="0" accesskey="a">zoom-in+</button>
           <button class="btn" id="zoom-out" tabindex="1" accesskey="s">zoom-out-</button>
           <button class="btn" id="reset-zoom" tabindex="2" accesskey="d"> Reset</button>
-          <button class="btn" id="toggle-pan" tabindex="3" accesskey="f"> Pan</button>
           <div class="zoom-info">
             Zoom: <span id="zoom-level">100%</span>
           </div>

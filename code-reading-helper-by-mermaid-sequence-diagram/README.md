@@ -56,7 +56,7 @@ it helps developers quickly answer:
 
 ### Quick Demo
 
-<img src="./images/demo.gif" alt="Demo Animation" width="800">
+<img src="./images/1.5demo.gif" alt="Demo Animation" width="800">
 
 ### Step-by-Step Example
 

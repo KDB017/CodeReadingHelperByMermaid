@@ -7,23 +7,37 @@ Designed specifically to **support code reading and understanding**, not full st
 
 ---
 
+## Why Use This?
+
+Before Mermaid Jump:
+
+- ❌ Spend 30 minutes finding function definitions
+- ❌ Get lost in 10,000+ line files
+- ❌ Manually search for each function call
+
+After Mermaid Jump:
+
+- ✅ Click function → Instant jump to code
+- ✅ See which functions are called most (color-coded)
+- ✅ Understand code flow in 5 minutes
+
 ## ✨ Who This Is For
 
 This extension is best suited for:
 
-* Reading unfamiliar or legacy codebases
-* Understanding execution flow before diving into implementations
-* Using diagrams as a guide for where to start reading code
+- Reading unfamiliar or legacy codebases
+- Understanding execution flow before diving into implementations
+- Using diagrams as a guide for where to start reading code
 
 It is **not** intended to perfectly resolve all runtime behavior or dynamic dispatch.
 
 ## ✨ Features
 
-* Jump to *related* function/method definitions from Mermaid sequence diagrams
+- Jump to *related* function/method definitions from Mermaid sequence diagrams
 
-  * When exact resolution is ambiguous, this extension prioritizes fast navigation over perfect accuracy
-* Works inside Markdown, `.mmd`, and code comments
-* Zero-config, instant response
+  - When exact resolution is ambiguous, this extension prioritizes fast navigation over perfect accuracy
+- Works inside Markdown, `.mmd`, and code comments
+- Zero-config, instant response
 
 ---
 
@@ -34,9 +48,9 @@ This project focuses on improving the *first 30 minutes* of code reading.
 Instead of trying to fully understand a system automatically,
 it helps developers quickly answer:
 
-* Where does this flow start?
-* Which functions are worth reading first?
-* How does execution move across files?
+- Where does this flow start?
+- Which functions are worth reading first?
+- How does execution move across files?
 
 ## 🎥 Demo
 
@@ -68,9 +82,9 @@ Click on `make_body()` or `initialize()` to navigate directly to the function de
 
 These features are designed to help you decide **what to read first**, not just where to jump.
 
-* Zoom & Pan: Use toolbar buttons to navigate large diagrams
-* Color Coding: Functions called frequently (5+) appear in orange, very frequent (10+) in red — helping highlight hotspots worth reading first
-* Instant Navigation: Click-to-jump with no lag
+- Zoom & Pan: Use toolbar buttons to navigate large diagrams
+- Color Coding: Functions called frequently (5+) appear in orange, very frequent (10+) in red — helping highlight hotspots worth reading first
+- Instant Navigation: Click-to-jump with no lag
 
 ---
 

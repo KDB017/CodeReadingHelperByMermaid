@@ -36,9 +36,6 @@ export class Controller extends Object {
      */
     public async jumpToFunction(functionName: string, nearestParticipant: string): Promise<void> {
         try {
-            console.log('=== jumpToFunction DEBUG ===');
-            console.log('🔍 Searching for function:', `"${functionName}"`);
-            console.log('🔍 Nearest participant:', `"${nearestParticipant}"`);
 
             // Validate inputs
             if (!functionName || functionName.trim() === '') {
@@ -53,7 +50,6 @@ export class Controller extends Object {
 
             // Validate file extension
             const fileExtension = this.model.getProgrammingLanguagefileExtension();
-            console.log('model programmingLanguageFileExtension:', fileExtension);
 
             if (!fileExtension || fileExtension.trim() === '') {
                 this.view.showErrorMessage(
@@ -88,7 +84,6 @@ export class Controller extends Object {
                 try {
                     const document = await workspace.openTextDocument(file);
                     const text = document.getText();
-                    console.log(`📖 File: ${file.fsPath}`);
                     const searchResult = analyzer.searchFunctionPosition(text, functionName);
 
                     if (searchResult !== null) {
@@ -98,18 +93,15 @@ export class Controller extends Object {
                         return;
                     }
                 } catch (fileError: any) {
-                    console.error(`❌ Error processing file ${file.fsPath}:`, fileError.message);
-                    // Continue to next file
+                    this.view.showErrorMessage(`Failed to open file: ${file.fsPath}. Error: ${fileError.message}`);
                 }
             }
 
             // Function not found in any file
-            console.log('❌ Function not found in any file');
             this.view.showInformationMessage(`Function "${functionName}" was not found in ${nearestParticipant}`);
 
         } catch (error: any) {
             const errorMsg = error instanceof Error ? error.message : String(error);
-            console.error('❌ Fatal error in jumpToFunction:', errorMsg);
             this.view.showErrorMessage(`Failed to navigate: ${errorMsg}`);
         }
     }
@@ -121,26 +113,20 @@ export class Controller extends Object {
      */
     private async findClassOrFilenameInParticipant(nearestParticipant: string): Promise<Uri[]> {
 
-        console.log('=== findClassOrFilenameInParticipant DEBUG ===');
-        console.log('🔍 Nearest participant for scoping:', `"${nearestParticipant}"`);
 
         const targetName = nearestParticipant;
 
         // Get the programming language extension from model
         const fileExtension = this.model.getProgrammingLanguagefileExtension();
-        console.log('🔍 Target file extension:', `"${fileExtension}"`);
 
         // Phase 1: Search by filename (both with and without extension)
-        console.log('🔍 Phase 1 - Searching for file:', `"${targetName}"`);
 
         const filenameMatches = await this.findFilesByName(targetName, fileExtension);
         if (filenameMatches.length > 0) {
-            console.log('✅ Phase 1 - Filename match found:', filenameMatches.map(uri => uri.fsPath));
             return filenameMatches;
         }
 
         // Phase 2: Search by content (files that contain the targetName)
-        console.log('🔍 Phase 2 - Searching for files that contain the participant name in content:', `"${targetName}"`);
         const contentMatches = await this.findFilesByFileContent(targetName, fileExtension);
 
         return contentMatches;
@@ -149,15 +135,15 @@ export class Controller extends Object {
     private async findFilesByName(targetName: string, fileExtension: string): Promise<Uri[]> {
         const matched = new Set<string>(); // Use Set to avoid duplicates
         try {
-            const filenameMatches = await workspace.findFiles(`**/${targetName}*`);
+            const filenameMatches = await workspace.findFiles(`**/${targetName}.${fileExtension}`, null, 10);
             // Filter by language extension
             const languageSpecificMatches = filenameMatches.filter(uri =>
                 uri.fsPath.endsWith(`.${fileExtension}`)
             );
-            console.log('✅ Phase 1 - Filename matches count (after language filter):', languageSpecificMatches.length);
+
             languageSpecificMatches.forEach(uri => matched.add(uri.fsPath));
         } catch (error: any) {
-            console.error('❌ Phase 1 - Error during filename search:', error);
+            this.view.showErrorMessage(`Error searching files by name: ${error.message}`);
         }
         return Promise.resolve(Array.from(matched).map(fsPath => Uri.file(fsPath)));
     }
@@ -172,12 +158,15 @@ export class Controller extends Object {
             const matched: Uri[] = [];
             results.forEach((result, index) => {
                 if (result.status === 'fulfilled' && result.value.getText().includes(targetName)) {
-                    matched.push(candidates[index]!);
+                    if (candidates[index]) {
+                        matched.push(candidates[index]);
+
+                    }
                 }
             });
             return matched;
         } catch (error: any) {
-            console.error('❌ Phase 2 - Error while enumerating files for content search:', error);
+            this.view.showErrorMessage(`Error searching files by content: ${error.message}`);
             return [];
         }
     }

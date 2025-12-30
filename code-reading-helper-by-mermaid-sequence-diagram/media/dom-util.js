@@ -23,7 +23,6 @@ function findArrowForMessage(anElement) {
     const className = findArrowElement.getAttribute('class');
 
     if (className.includes('messageLine')) {
-        // console.log(findArrowElement)
         return findArrowElement;
     }
     return null;
@@ -82,24 +81,18 @@ function getActorElements(aDocument) {
  */
 export function getNearestParticipantName(aDocument, aTextElement) {
     if (!aTextElement) { return null; }
-    console.log("aTextElement", aTextElement);
     const actorElements = getActorElements(aDocument);
-    console.log("actorElements", actorElements);
     if (actorElements.length === 0) { return null; }
 
     const anArrowElementNearThisTextMessage = findArrowForMessage(aTextElement);
-    console.log("anArrowElementNearThisTextMessage", anArrowElementNearThisTextMessage);
     if (!anArrowElementNearThisTextMessage) { return null; }
 
     const endCoordinateOfArrowInArrowElement = getEndCoordinateOfArrowInArrowElement(anArrowElementNearThisTextMessage);
-    console.log("endCoordinateOfArrowInArrowElement", endCoordinateOfArrowInArrowElement);
     if (!endCoordinateOfArrowInArrowElement) { return null; }
     const nearActorForEndCoordinateOfArrowInArrowElement = getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements, endCoordinateOfArrowInArrowElement);
-    console.log("nearActorForEndCoordinateOfArrowInArrowElement", nearActorForEndCoordinateOfArrowInArrowElement);
     if (!nearActorForEndCoordinateOfArrowInArrowElement) { return null; }
 
     const participantName = getParticipantTspanClass(nearActorForEndCoordinateOfArrowInArrowElement);
-    console.log("participantName", participantName);
     return participantName;
 }
 
@@ -110,26 +103,27 @@ export function getNearestParticipantName(aDocument, aTextElement) {
  * @returns {string|null}
  */
 function getParticipantTspanClass(participantElement) {
-    // console.log("participantElement:", participantElement);
     const tspans = participantElement.querySelectorAll('tspan');
-    console.log("tspans:", tspans);
     let classOrFilename = null;
     if (tspans.length === 0) {
         return classOrFilename;
     }
+    // if single tspan , not exist : I think
     if (tspans.length === 1) {
         classOrFilename = tspans[0].textContent.trim();
-        console.log("single tspan:", classOrFilename);
         return classOrFilename;
     }
     const fullClassName = tspans[tspans.length - 1];
-    console.log("fullClassName:", fullClassName);
     if (!fullClassName) { return null; }
     let tspanText = fullClassName.textContent;
+    tspanText=tspanText.substring(1);
+    const splitedTspanText=tspanText.split('/');
+    if (splitedTspanText.length>1){
+        tspanText=splitedTspanText[splitedTspanText.length-1];
+    }
     if (!tspanText) { return null; }
     tspanText = tspanText.trim();
-    classOrFilename = tspanText.substring(1); // remove leading ':'
-    console.log("tspanText after removing leading ':' :", tspanText);
+    classOrFilename=tspanText;
 
     return classOrFilename;
 
@@ -164,9 +158,7 @@ function getNearestElementForEndCoordinateOfArrowInArrowElement(actorElements, e
  */
 function getParticipantCenterCoordinate(aParticipantElement) {
     const rectBound = aParticipantElement.getBoundingClientRect();
-    // console.log(aParticipantElement,rectBound)
     const x = rectBound.left + rectBound.width / 2;
     const y = rectBound.top + rectBound.height / 2;
-    // console.log(x,y);
     return { x, y };
 }

@@ -57,7 +57,6 @@ export abstract class BaseAnalyzer extends Object implements ICodeAnalyzer{
         for (const patternRegex of this.getSearchRegexes(escapedFunctionName)) {
             const match = patternRegex.exec(text);
             if (match) {
-                console.log(`Match for function: ${functionName}`);
                 return { index: match.index };
             }
         }

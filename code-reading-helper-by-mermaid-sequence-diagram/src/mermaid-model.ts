@@ -110,7 +110,6 @@ export class MermaidModel extends Object {
                     const fileExtension = afterDot.trim().toLowerCase();
 
                     if (fileExtension.length > 0) {
-                        console.log("extractProgrammingLanguageFileExtensionFromTitle:", fileExtension);
                         return fileExtension;
                     }
                 }

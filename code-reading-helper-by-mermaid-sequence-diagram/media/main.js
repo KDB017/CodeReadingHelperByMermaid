@@ -48,7 +48,6 @@ function initializePanzoom() {
     }, { passive: false });
 }
 
-console.log(mermaidDiagram);
 // Button event setup
 function setupButtons() {
     zoomInButton.addEventListener('click', () => {
@@ -87,7 +86,6 @@ mermaid.run({
             element.classList.add('clickable');
             element.addEventListener('click', (event) => {
                 const messageTextElement = event.currentTarget;
-                console.log("messageEl:", messageTextElement);
 
                 const nearestParticipantName = getNearestParticipantName(document, messageTextElement);
                 vscode.postMessage({
@@ -108,15 +106,14 @@ mermaid.run({
 window.addEventListener('message', (event) => {
     const message = event.data;
     const { orange, red } = message.thresholds;
-    if (typeof orange === 'number' && orange >= 0) COLORTHRESHOLDS.orange = orange;
-    if (typeof red === 'number' && red >= 0) COLORTHRESHOLDS.red = red;
+    if (typeof orange === 'number' && orange >= 0){ COLORTHRESHOLDS.orange = orange;}
+    if (typeof red === 'number' && red >= 0){ COLORTHRESHOLDS.red = red;}
 
     try {
         const elements = document.querySelectorAll('.messageText');
         const counts = buildFunctionCounts(elements);
         applyColors(elements, counts, true);
     } catch (error) {
-        console.warn('Failed to apply config thresholds:', error);
     }
 
 });

@@ -2,10 +2,7 @@
 YarnOrNPM=npm
 VSCE=vsce
 TESTSCRIPTS_DIR=./TestScripts
-JAVA=Java
-PYTHON=Python
-TYPESCRIPT=Typescript
-JAVASCRIPT=JavaScript
+ZIPNAME=code-reading-helper-by-mermaid-sequence-diagram
 
 all:
 	test
@@ -21,7 +18,7 @@ watch:
 	$(YarnOrNPM) run watch
 
 clean:
-	rm -rf ./out ./docs
+	rm -rf ./out ./docs ./node_modules ./*.zip ./*.vsix ./.vscode-test
 
 pack:
 	$(VSCE) package
@@ -38,7 +35,7 @@ typescriptzip:
 javascriptzip:
 	zip -r $(JAVASCRIPT).zip $(TESTSCRIPTS_DIR)/JavaScript/
 
-testzip: javazip pythonzip typescriptzip javascriptzip
 
-zip: clean testzip 
+zip: clean
+	zip -r $(ZIPNAME).zip .
 

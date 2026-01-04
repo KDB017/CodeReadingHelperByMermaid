@@ -2,7 +2,7 @@
   "name": "code-reading-helper-by-mermaid-sequence-diagram",
   "displayName": "Mermaid Jump - Click to Navigate Code",
   "description": "Navigate code 10x faster by clicking function names in Mermaid sequence diagrams. Perfect for understanding code.",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "kazu017",
   "engines": {
     "vscode": "^1.105.0"
